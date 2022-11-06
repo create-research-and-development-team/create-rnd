@@ -1,5 +1,6 @@
 package com.klarkson.creaternd.content.item.tool.handheldSaw;
 
+import com.klarkson.creaternd.CreateRND;
 import com.simibubi.create.content.curiosities.armor.BackTankUtil;
 import com.simibubi.create.foundation.utility.AbstractBlockBreakQueue;
 import com.simibubi.create.foundation.utility.TreeCutter;
@@ -44,7 +45,6 @@ import java.util.function.Consumer;
 
 @NonnullDefault
 public class HandheldSawItem extends AxeItem implements IAnimatable, ISyncable {
-    private static final int MAX_VEIN_SIZE = 64;
     private static final String SWINGING_BOOL = "swinging";
     private static final String WAS_SWINGING_BOOL = "wasSwinging";
     private static final int ANIM_IDLE = 0;
@@ -68,7 +68,8 @@ public class HandheldSawItem extends AxeItem implements IAnimatable, ISyncable {
         consumer.accept(new IClientItemExtensions() {
             private final BlockEntityWithoutLevelRenderer renderer = new HandheldSawRenderer();
 
-            public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
                 return renderer;
             }
         });
@@ -123,10 +124,13 @@ public class HandheldSawItem extends AxeItem implements IAnimatable, ISyncable {
             return true;
         }
 
-        return super.mineBlock(tool, level, block, pos, player);
+        boolean ret = super.mineBlock(tool, level, block, pos, player);
+        TreeCutter.findTree(level, pos).destroyBlocks(level, player, this::dropItemFromCutTree);
+        return ret;
     }
 
     public void dropItemFromCutTree(BlockPos pos, ItemStack stack) {
+        CreateRND.LOGGER.debug("Mining block at " + pos.toShortString());
         Vec3 dropPos = VecHelper.getCenterOf(pos);
         ItemEntity entity = new ItemEntity(breakingLevel, dropPos.x, dropPos.y, dropPos.z, stack);
         breakingLevel.addFreshEntity(entity);

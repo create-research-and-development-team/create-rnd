@@ -40,7 +40,7 @@ public class CreateRND
     // Define mod id in a common place for everything to reference
     public static final String MODID = "creaternd";
     // Directly reference a slf4j logger
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     private static final NonNullSupplier<CreateRegistrate> REGISTRATE = CreateRegistrate.lazy(MODID);
     public CreateRND()

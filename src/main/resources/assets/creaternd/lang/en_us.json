@@ -1,3 +1,5 @@
 {
-    "block.creaternd.testblock" : "TestBlock"
+    "block.creaternd.testblock" : "TestBlock",
+
+    "item.creaternd.handheld_saw": "Handheld Saw"
 }
