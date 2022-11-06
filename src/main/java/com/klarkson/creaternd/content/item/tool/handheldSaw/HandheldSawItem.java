@@ -1,6 +1,9 @@
 package com.klarkson.creaternd.content.item.tool.handheldSaw;
 
 import com.simibubi.create.content.curiosities.armor.BackTankUtil;
+import com.simibubi.create.foundation.utility.AbstractBlockBreakQueue;
+import com.simibubi.create.foundation.utility.TreeCutter;
+import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -20,6 +23,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.network.PacketDistributor;
 import org.lwjgl.system.NonnullDefault;
@@ -35,10 +39,7 @@ import software.bernie.geckolib3.network.GeckoLibNetwork;
 import software.bernie.geckolib3.network.ISyncable;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 @NonnullDefault
@@ -52,6 +53,9 @@ public class HandheldSawItem extends AxeItem implements IAnimatable, ISyncable {
     public static final int MAX_DAMAGE = 420;
 
     public final AnimationFactory ANIMATION_FACTORY = GeckoLibUtil.createFactory(this);
+
+    public BlockPos breakingPos;
+    public Level breakingLevel;
 
     public HandheldSawItem(Tier tier, float attackBonus, float attackSpeedBonus, Properties properties) {
         super(tier, attackBonus, attackSpeedBonus, properties.defaultDurability(MAX_DAMAGE));
@@ -109,62 +113,25 @@ public class HandheldSawItem extends AxeItem implements IAnimatable, ISyncable {
 
     @Override
     public boolean mineBlock(ItemStack tool, Level level, BlockState block, BlockPos pos, LivingEntity player) {
-        boolean ret = super.mineBlock(tool, level, block, pos, player);
+        Optional<AbstractBlockBreakQueue> dynamicTree = TreeCutter.findDynamicTree(block.getBlock(), pos);
 
-        if(ret && isCorrectToolForDrops(block) && !level.isClientSide){
-            List<List<ItemStack>> items = new ArrayList<>();
-            veinMine((ServerLevel) level, pos, player, tool, BlockTags.LOGS, items, MAX_VEIN_SIZE);
-
-            int blocksMined = items.size();
-
-            tool.hurtAndBreak(blocksMined-1, player, (p) -> p.broadcastBreakEvent(EquipmentSlot.MAINHAND));
-
-            for(List<ItemStack> drops : items) {
-                for(ItemStack item : drops) {
-                    new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), item).spawnAtLocation(item);
-                }
-            }
+        if (dynamicTree.isPresent()) {
+            breakingLevel = level;
+            breakingPos = pos;
+            dynamicTree.get()
+                    .destroyBlocks(level, player, this::dropItemFromCutTree);
+            return true;
         }
 
-        return ret;
+        return super.mineBlock(tool, level, block, pos, player);
     }
 
-    private void veinMine(ServerLevel level, BlockPos pos, LivingEntity player, ItemStack tool, TagKey<Block> blocksToMine, List<List<ItemStack>> itemDrops, int totalBlocks) {
-        if(totalBlocks <= 0) {
-            return;
-        }
-
-        // Using a set to prevent duplicate entries
-        Set<BlockPos> positionQueue = new HashSet<>();
-        positionQueue.add(pos);
-        do {
-            Set<BlockPos> newPositionQueue = new HashSet<>();
-            for(BlockPos position : positionQueue) {
-
-                BlockState blockMined = level.getBlockState(position);
-                if(blockMined.is(blocksToMine)){
-                    itemDrops.add(Block.getDrops(blockMined, level, position, null, player, tool));
-                    level.destroyBlock(position, false);
-
-                    totalBlocks--;
-                    if(totalBlocks <= 0) {
-                        return;
-                    }
-
-                    for(int i = -1; i < 2; i++) {
-                        for (int j = -1; j < 2; j++) {
-                            for(int k = -1; k < 2; k++) {
-                                if(i == 0 && j == 0 && k == 0) continue;
-                                newPositionQueue.add(position.offset(i, j, k));
-                            }
-                        }
-                    }
-                }
-            }
-            positionQueue = new HashSet<>(newPositionQueue);
-        } while (!positionQueue.isEmpty());
-
+    public void dropItemFromCutTree(BlockPos pos, ItemStack stack) {
+        Vec3 dropPos = VecHelper.getCenterOf(pos);
+        ItemEntity entity = new ItemEntity(breakingLevel, dropPos.x, dropPos.y, dropPos.z, stack);
+        breakingLevel.addFreshEntity(entity);
     }
+
     private <P extends AxeItem & IAnimatable> PlayState predicate(AnimationEvent<P> event) {
         return PlayState.CONTINUE;
     }
@@ -178,9 +145,10 @@ public class HandheldSawItem extends AxeItem implements IAnimatable, ISyncable {
     public UseAnim getUseAnimation(ItemStack stack) {
         return UseAnim.NONE;
     }
+
     @Override
     public void registerControllers(AnimationData data) {
-        // Do not set transitionLengtTicks to 0, it crashes with a null pointer exception
+        // Do not set transitionLengthTicks to 0, it crashes with a null pointer exception
         data.addAnimationController(new AnimationController<>(this, CONTROLLER_NAME, 1, this::predicate));
     }
 
