@@ -1,17 +1,20 @@
 package com.klarkson.creaternd.content.item.tool.handheldDrill;
 
 import com.simibubi.create.content.curiosities.armor.BackTankUtil;
+import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.Tier;
@@ -21,8 +24,10 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.network.PacketDistributor;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.lwjgl.system.NonnullDefault;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
@@ -38,8 +43,10 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
+// TODO: Switch from GeckoLib to Flywheel Partials
 @NonnullDefault
 public class HandheldDrillItem extends PickaxeItem implements IAnimatable, ISyncable {
     private static final int ANGLE_LIMIT = 55;
@@ -114,24 +121,13 @@ public class HandheldDrillItem extends PickaxeItem implements IAnimatable, ISync
         boolean ret = super.mineBlock(tool, level, block, pos, player);
 
         if(ret && isCorrectToolForDrops(tool, block) && !level.isClientSide){
-            List<List<ItemStack>> items = new ArrayList<>();
-            mineLarge((ServerLevel) level, pos, player, tool, BlockTags.MINEABLE_WITH_PICKAXE, items);
-
-            int blocksMined = items.size();
-
-            tool.hurtAndBreak(blocksMined-1, player, (p) -> p.broadcastBreakEvent(EquipmentSlot.MAINHAND));
-
-            for(List<ItemStack> drops : items) {
-                for(ItemStack item : drops) {
-                    new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), item).spawnAtLocation(item);
-                }
-            }
+            mineLarge((ServerLevel) level, pos, player, tool);
         }
 
         return ret;
     }
 
-    private void mineLarge(ServerLevel level, BlockPos pos, LivingEntity player, ItemStack tool, TagKey<Block> blocksToMine, List<List<ItemStack>> itemDrops) {
+    private void mineLarge(ServerLevel level, BlockPos pos, LivingEntity player, ItemStack tool) {
         Direction direction = player.getDirection();
 
         float xRot = player.getXRot();
@@ -150,17 +146,17 @@ public class HandheldDrillItem extends PickaxeItem implements IAnimatable, ISync
                 directions2[0] = Direction.UP;
                 directions2[2] = Direction.DOWN;
                 break;
-            case Y:
-                directions1[0] = Direction.NORTH;
-                directions1[2] = Direction.SOUTH;
-                directions2[0] = Direction.EAST;
-                directions2[2] = Direction.WEST;
-                break;
             case Z:
                 directions1[0] = Direction.WEST;
                 directions1[2] = Direction.EAST;
                 directions2[0] = Direction.UP;
                 directions2[2] = Direction.DOWN;
+                break;
+            case Y:
+                directions1[0] = Direction.NORTH;
+                directions1[2] = Direction.SOUTH;
+                directions2[0] = Direction.EAST;
+                directions2[2] = Direction.WEST;
                 break;
         }
 
@@ -176,17 +172,20 @@ public class HandheldDrillItem extends PickaxeItem implements IAnimatable, ISync
                 }
 
                 BlockState blockMined = level.getBlockState(testPos);
-                if(blockMined.is(blocksToMine)) {
-                    itemDrops.add(Block.getDrops(blockMined, level, testPos, null, player, tool));
+                if(isCorrectToolForDrops(tool, blockMined)) {
+                    tool.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(EquipmentSlot.MAINHAND));
                     level.destroyBlock(testPos, false);
+
+                    for(ItemStack item : Block.getDrops(blockMined, level, testPos, null, player, tool)) {
+                        Vec3 dropPos = VecHelper.getCenterOf(pos);
+                        ItemEntity entity = new ItemEntity(level, dropPos.x, dropPos.y, dropPos.z, item);
+                        level.addFreshEntity(entity);
+                    }
+
+                    ((Player)player).awardStat(Stats.ITEM_USED.get(tool.getItem()));
                 }
             }
         }
-
-    }
-
-    private <P extends PickaxeItem & IAnimatable> PlayState predicate(AnimationEvent<P> event) {
-        return PlayState.CONTINUE;
     }
 
     @Override
@@ -201,8 +200,8 @@ public class HandheldDrillItem extends PickaxeItem implements IAnimatable, ISync
 
     @Override
     public void registerControllers(AnimationData data) {
-        // Do not set transitionLengtTicks to 0, it crashes with a null pointer exception
-        data.addAnimationController(new AnimationController<>(this, CONTROLLER_NAME, 1, this::predicate));
+        // Do not set transitionLengthTicks to 0, it crashes with a null pointer exception
+        data.addAnimationController(new AnimationController<>(this, CONTROLLER_NAME, 1,  event -> PlayState.CONTINUE));
     }
 
     @Override
@@ -211,37 +210,29 @@ public class HandheldDrillItem extends PickaxeItem implements IAnimatable, ISync
     }
 
     @Override
-    public boolean onEntitySwing(ItemStack item, LivingEntity entity)
+    public boolean onEntitySwing(ItemStack item, LivingEntity player)
     {
-        CompoundTag tag = ensureTagged(item);
-        tag.putBoolean(SWINGING_BOOL, true);
-
+        player.swinging = true;
+        player.swingTime = -2;
         return true;
     }
 
     @Override
-    public void inventoryTick(ItemStack item, Level level, Entity entity, int slot, boolean selected) {
-        if (!level.isClientSide && selected) {
-            final int id = GeckoLibUtil.guaranteeIDForStack(item, (ServerLevel) level);
-            final PacketDistributor.PacketTarget target = PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity);
+    public void inventoryTick(ItemStack item, Level level, Entity player, int slot, boolean selected) {
+        if(!level.isClientSide) {
+            LivingEntity livingPlayer = (LivingEntity) player;
 
-            CompoundTag tag = ensureTagged(item);
+            final int id = GeckoLibUtil.guaranteeIDForStack(item, (ServerLevel) player.level);
+            final PacketDistributor.PacketTarget target = PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player);
 
-            boolean swinging = tag.getBoolean(SWINGING_BOOL);
-            boolean wasSwinging = tag.getBoolean(WAS_SWINGING_BOOL);
+            final AnimationController controller = GeckoLibUtil.getControllerForID(this.ANIMATION_FACTORY, id, CONTROLLER_NAME);
 
-            if(swinging && !wasSwinging) {
+            if((!selected || !livingPlayer.swinging) && checkIfNotAnimOrNull(controller, "idle")) {
+                GeckoLibNetwork.syncAnimation(target, this, id, ANIM_IDLE);
+            } else if(selected && livingPlayer.swinging && checkIfNotAnimOrNull(controller, "drill")) {
                 GeckoLibNetwork.syncAnimation(target, this, id, ANIM_DRILL);
             }
-            else if (!swinging && wasSwinging) {
-                GeckoLibNetwork.syncAnimation(target, this, id, ANIM_IDLE);
-            }
-
-            tag.putBoolean(WAS_SWINGING_BOOL, swinging);
-            tag.putBoolean(SWINGING_BOOL, false);
         }
-
-        super.inventoryTick(item, level, entity, slot, selected);
     }
 
     @Override
@@ -257,12 +248,9 @@ public class HandheldDrillItem extends PickaxeItem implements IAnimatable, ISync
         }
     }
 
-    private CompoundTag ensureTagged(ItemStack item) {
-        CompoundTag tag = item.getTag();
-        if(tag == null) {
-            tag = new CompoundTag();
-            item.setTag(tag);
-        }
-        return tag;
+    private boolean checkIfNotAnimOrNull(@NonNull AnimationController controller, @NonNull String anim) {
+        if(controller.getCurrentAnimation() == null) return true;
+
+        return !Objects.equals(controller.getCurrentAnimation().animationName, anim);
     }
 }
