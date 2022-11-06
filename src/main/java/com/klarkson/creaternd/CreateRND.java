@@ -2,6 +2,7 @@ package com.klarkson.creaternd;
 
 import com.klarkson.creaternd.content.block.BlockHandler;
 import com.klarkson.creaternd.content.entity.EntityHandler;
+import com.klarkson.creaternd.content.entity.GeckoEntityHandler;
 import com.klarkson.creaternd.content.item.ItemHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
@@ -55,6 +56,7 @@ public class CreateRND
 
         GeckoLibMod.DISABLE_IN_DEV = true;
         GeckoLib.initialize();
+        GeckoEntityHandler.REG.register(modEventBus);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> CreateRNDClient.prepareClient(modEventBus, forgeEventBus));
     }
