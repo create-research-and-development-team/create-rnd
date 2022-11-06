@@ -26,6 +26,7 @@ import org.lwjgl.system.NonnullDefault;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
+import software.bernie.geckolib3.core.builder.ILoopType;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
@@ -50,7 +51,7 @@ public class HandheldSawItem extends AxeItem implements IAnimatable, ISyncable {
     private static final String CONTROLLER_NAME = "handheldSawController";
     public static final int MAX_DAMAGE = 420;
 
-    public final AnimationFactory ANIMATION_FACTORY = new AnimationFactory(this);
+    public final AnimationFactory ANIMATION_FACTORY = GeckoLibUtil.createFactory(this);
 
     public HandheldSawItem(Tier tier, float attackBonus, float attackSpeedBonus, Properties properties) {
         super(tier, attackBonus, attackSpeedBonus, properties.defaultDurability(MAX_DAMAGE));
@@ -229,9 +230,9 @@ public class HandheldSawItem extends AxeItem implements IAnimatable, ISyncable {
         final AnimationController controller = GeckoLibUtil.getControllerForID(this.ANIMATION_FACTORY, id, CONTROLLER_NAME);
 
         if (state == ANIM_SAW) {
-            controller.setAnimation(new AnimationBuilder().addAnimation("saw", true));
+            controller.setAnimation(new AnimationBuilder().addAnimation("saw", ILoopType.EDefaultLoopTypes.LOOP));
         } else if (state == ANIM_IDLE) {
-            controller.setAnimation(new AnimationBuilder().addAnimation("idle", true));
+            controller.setAnimation(new AnimationBuilder().addAnimation("idle", ILoopType.EDefaultLoopTypes.LOOP));
         }
     }
 
