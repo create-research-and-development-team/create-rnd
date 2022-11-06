@@ -172,9 +172,9 @@ public class HandheldSawItem extends AxeItem implements IAnimatable, ISyncable {
 
             final AnimationController controller = GeckoLibUtil.getControllerForID(this.ANIMATION_FACTORY, id, CONTROLLER_NAME);
 
-            if(!livingPlayer.swinging && checkIfNotAnimOrNull(controller, "idle")) {
+            if((!selected || !livingPlayer.swinging) && checkIfNotAnimOrNull(controller, "idle")) {
                 GeckoLibNetwork.syncAnimation(target, this, id, ANIM_IDLE);
-            } else if(livingPlayer.swinging && checkIfNotAnimOrNull(controller, "saw")) {
+            } else if(selected && livingPlayer.swinging && checkIfNotAnimOrNull(controller, "saw")) {
                 GeckoLibNetwork.syncAnimation(target, this, id, ANIM_SAW);
             }
         }
