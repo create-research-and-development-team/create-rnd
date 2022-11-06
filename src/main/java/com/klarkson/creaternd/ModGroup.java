@@ -19,7 +19,8 @@ public class ModGroup {
         public void fillItemList(NonNullList<ItemStack> list) {
             list.addAll(Arrays.asList(
                     BlockHandler.TESTBLOCK.asStack(),
-                    ItemHandler.HANDHELD_SAW.asStack()
+                    ItemHandler.HANDHELD_SAW.asStack(),
+                    ItemHandler.HANDHELD_DRILL.asStack()
             ));
         }
     };
