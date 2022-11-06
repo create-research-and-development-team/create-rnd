@@ -1,18 +1,16 @@
 package com.klarkson.creaternd.content.item.tool.handheldSaw;
 
-import com.klarkson.creaternd.CreateRND;
 import com.simibubi.create.content.curiosities.armor.BackTankUtil;
 import com.simibubi.create.foundation.utility.AbstractBlockBreakQueue;
 import com.simibubi.create.foundation.utility.TreeCutter;
 import com.simibubi.create.foundation.utility.VecHelper;
+import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.AxeItem;
@@ -22,18 +20,19 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.network.PacketDistributor;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.lwjgl.system.NonnullDefault;
+import software.bernie.geckolib3.GeckoLib;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
 import software.bernie.geckolib3.core.builder.ILoopType;
 import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.network.GeckoLibNetwork;
@@ -43,18 +42,16 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 import java.util.*;
 import java.util.function.Consumer;
 
+// TODO: Switch from GeckoLib to Flywheel Partials
 @NonnullDefault
 public class HandheldSawItem extends AxeItem implements IAnimatable, ISyncable {
-    private static final String SWINGING_BOOL = "swinging";
-    private static final String WAS_SWINGING_BOOL = "wasSwinging";
     private static final int ANIM_IDLE = 0;
     private static final int ANIM_SAW = 1;
     private static final String CONTROLLER_NAME = "handheldSawController";
-    public static final int MAX_DAMAGE = 420;
+    public static final int MAX_DAMAGE = 2048;
 
     public final AnimationFactory ANIMATION_FACTORY = GeckoLibUtil.createFactory(this);
 
-    public BlockPos breakingPos;
     public Level breakingLevel;
 
     public HandheldSawItem(Tier tier, float attackBonus, float attackSpeedBonus, Properties properties) {
@@ -114,31 +111,28 @@ public class HandheldSawItem extends AxeItem implements IAnimatable, ISyncable {
 
     @Override
     public boolean mineBlock(ItemStack tool, Level level, BlockState block, BlockPos pos, LivingEntity player) {
-        Optional<AbstractBlockBreakQueue> dynamicTree = TreeCutter.findDynamicTree(block.getBlock(), pos);
+        boolean ret = super.mineBlock(tool, level, block, pos, player);
+        level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
 
+        breakingLevel = level;
+
+        Optional<AbstractBlockBreakQueue> dynamicTree = TreeCutter.findDynamicTree(block.getBlock(), pos);
         if (dynamicTree.isPresent()) {
-            breakingLevel = level;
-            breakingPos = pos;
             dynamicTree.get()
                     .destroyBlocks(level, player, this::dropItemFromCutTree);
             return true;
         }
 
-        boolean ret = super.mineBlock(tool, level, block, pos, player);
         TreeCutter.findTree(level, pos).destroyBlocks(level, player, this::dropItemFromCutTree);
         return ret;
     }
 
     public void dropItemFromCutTree(BlockPos pos, ItemStack stack) {
-        CreateRND.LOGGER.debug("Mining block at " + pos.toShortString());
         Vec3 dropPos = VecHelper.getCenterOf(pos);
         ItemEntity entity = new ItemEntity(breakingLevel, dropPos.x, dropPos.y, dropPos.z, stack);
         breakingLevel.addFreshEntity(entity);
     }
 
-    private <P extends AxeItem & IAnimatable> PlayState predicate(AnimationEvent<P> event) {
-        return PlayState.CONTINUE;
-    }
 
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
@@ -153,7 +147,7 @@ public class HandheldSawItem extends AxeItem implements IAnimatable, ISyncable {
     @Override
     public void registerControllers(AnimationData data) {
         // Do not set transitionLengthTicks to 0, it crashes with a null pointer exception
-        data.addAnimationController(new AnimationController<>(this, CONTROLLER_NAME, 1, this::predicate));
+        data.addAnimationController(new AnimationController<>(this, CONTROLLER_NAME, 1, event -> PlayState.CONTINUE));
     }
 
     @Override
@@ -162,37 +156,28 @@ public class HandheldSawItem extends AxeItem implements IAnimatable, ISyncable {
     }
 
     @Override
-    public boolean onEntitySwing(ItemStack item, LivingEntity entity)
-    {
-        CompoundTag tag = ensureTagged(item);
-        tag.putBoolean(SWINGING_BOOL, true);
-
+    public boolean onEntitySwing(ItemStack item, LivingEntity player) {
+        player.swinging = true;
+        player.swingTime = -2;
         return true;
     }
 
     @Override
-    public void inventoryTick(ItemStack item, Level level, Entity entity, int slot, boolean selected) {
-        if (!level.isClientSide && selected) {
-            final int id = GeckoLibUtil.guaranteeIDForStack(item, (ServerLevel) level);
-            final PacketDistributor.PacketTarget target = PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity);
+    public void inventoryTick(ItemStack item, Level level, Entity player, int count, boolean selected) {
+        if(!level.isClientSide) {
+            LivingEntity livingPlayer = (LivingEntity) player;
 
-            CompoundTag tag = ensureTagged(item);
+            final int id = GeckoLibUtil.guaranteeIDForStack(item, (ServerLevel) player.level);
+            final PacketDistributor.PacketTarget target = PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player);
 
-            boolean swinging = tag.getBoolean(SWINGING_BOOL);
-            boolean wasSwinging = tag.getBoolean(WAS_SWINGING_BOOL);
+            final AnimationController controller = GeckoLibUtil.getControllerForID(this.ANIMATION_FACTORY, id, CONTROLLER_NAME);
 
-            if(swinging && !wasSwinging) {
+            if(!livingPlayer.swinging && checkIfNotAnimOrNull(controller, "idle")) {
+                GeckoLibNetwork.syncAnimation(target, this, id, ANIM_IDLE);
+            } else if(livingPlayer.swinging && checkIfNotAnimOrNull(controller, "saw")) {
                 GeckoLibNetwork.syncAnimation(target, this, id, ANIM_SAW);
             }
-            else if (!swinging && wasSwinging) {
-                GeckoLibNetwork.syncAnimation(target, this, id, ANIM_IDLE);
-            }
-
-            tag.putBoolean(WAS_SWINGING_BOOL, swinging);
-            tag.putBoolean(SWINGING_BOOL, false);
         }
-
-        super.inventoryTick(item, level, entity, slot, selected);
     }
 
     @Override
@@ -208,12 +193,9 @@ public class HandheldSawItem extends AxeItem implements IAnimatable, ISyncable {
         }
     }
 
-    private CompoundTag ensureTagged(ItemStack item) {
-        CompoundTag tag = item.getTag();
-        if(tag == null) {
-            tag = new CompoundTag();
-            item.setTag(tag);
-        }
-        return tag;
+    private boolean checkIfNotAnimOrNull(@NonNull AnimationController controller, @NonNull String anim) {
+        if(controller.getCurrentAnimation() == null) return true;
+
+        return !Objects.equals(controller.getCurrentAnimation().animationName, anim);
     }
 }
