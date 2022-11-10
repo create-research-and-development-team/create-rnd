@@ -17,6 +17,7 @@ public class GeckoEntityHandler {
     public static final DeferredRegister<EntityType<?>> REG = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, CreateRND.MODID);
     public static final RegistryObject<EntityType<Klarkson>> KLARKSON = REG.register("klarkson", () -> EntityType.Builder.of(Klarkson::new, MobCategory.MISC).sized(0.1f,0.5f).build(new ResourceLocation(CreateRND.MODID, "klarkson").toString()));
 
+
     @SubscribeEvent
     public static void onCreateAttributes(EntityAttributeCreationEvent event) {
     }

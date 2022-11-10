@@ -1,0 +1,76 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.sculk_leech.new": {
+			"animation_length": 7.5,
+			"bones": {
+				"head": {
+					"rotation": {
+						"4.5": {
+							"vector": [0, 0, 0]
+						},
+						"5.25": {
+							"vector": [0, 17.5, 0],
+							"easing": "easeInOutSine"
+						},
+						"6.0": {
+							"vector": [-15, 17.5, 0],
+							"easing": "easeInOutSine"
+						},
+						"6.5": {
+							"vector": [0, 0, 0],
+							"easing": "easeInElastic"
+						}
+					}
+				},
+				"thorax1": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"1.5": {
+							"vector": [-65, 0, 0],
+							"easing": "easeInOutSine"
+						}
+					}
+				},
+				"thorax2": {
+					"rotation": {
+						"1.5": {
+							"vector": [0, 0, 0]
+						},
+						"3.0": {
+							"vector": [-30, 0, 0],
+							"easing": "easeInOutSine"
+						}
+					}
+				},
+				"tail": {
+					"rotation": {
+						"3.0": {
+							"vector": [0, 0, 0]
+						},
+						"4.5": {
+							"vector": [-47.5, 0, 0],
+							"easing": "easeInOutSine"
+						}
+					}
+				},
+				"body": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"7.5": {
+							"vector": [0, 360, 0]
+						}
+					}
+				}
+			}
+		},
+		"flintskintest": {
+			"loop": true
+		}
+	},
+	"geckolib_format_version": 2
+}

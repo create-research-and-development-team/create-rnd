@@ -51,12 +51,12 @@ public class CreateRND
         ModLoadingContext mlContext = ModLoadingContext.get();
 
         ItemHandler.register();
-        EntityHandler.register();
         BlockHandler.register();
 
         GeckoLibMod.DISABLE_IN_DEV = true;
         GeckoLib.initialize();
         GeckoEntityHandler.REG.register(modEventBus);
+        EntityHandler.ENTITIES.register(modEventBus);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> CreateRNDClient.prepareClient(modEventBus, forgeEventBus));
     }
