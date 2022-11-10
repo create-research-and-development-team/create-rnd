@@ -2,5 +2,8 @@
     "block.creaternd.testblock" : "TestBlock",
 
     "item.creaternd.handheld_saw": "Handheld Saw",
-    "item.creaternd.handheld_drill": "Handheld Drill"
+    "item.creaternd.handheld_drill": "Handheld Drill",
+    "item.creaternd.raw_lobster": "Raw Lobster",
+    "item.creaternd.cooked_lobster": "Cooked Lobster",
+    "item.creaternd.lobster_roll": "Lobster Roll"
 }

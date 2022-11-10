@@ -8,6 +8,7 @@ import com.simibubi.create.content.AllSections;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.tterrag.registrate.util.entry.ItemEntry;
 
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.Tiers;
@@ -23,6 +24,26 @@ public class ItemHandler {
 
     public static final ItemEntry<HandheldDrillItem> HANDHELD_DRILL = REGISTRATE.item("handheld_drill",
                     (p) -> new HandheldDrillItem(Tiers.NETHERITE, 5, 3.0f, p))
+            .register();
+
+    public static final ItemEntry<Item> RAW_LOBSTER = REGISTRATE.item("raw_lobster", Item::new)
+            .properties(p -> p.food(new FoodProperties.Builder().nutrition(4)
+                    .saturationMod(0.2F)
+                    .build()))
+
+            .register();
+    public static final ItemEntry<Item> Cooked_LOBSTER = REGISTRATE.item("cooked_lobster", Item::new)
+            .properties(p -> p.food(new FoodProperties.Builder().nutrition(8)
+                    .saturationMod(0.6F)
+                    .build()))
+
+            .register();
+    public static final ItemEntry<Item> LOBSTER_ROLL = REGISTRATE.item("lobster_roll", Item::new)
+            .properties(p -> p.food(new FoodProperties.Builder().nutrition(16)
+                    .saturationMod(1F)
+                    .build()))
+           
+
             .register();
 
     public static void register() {}

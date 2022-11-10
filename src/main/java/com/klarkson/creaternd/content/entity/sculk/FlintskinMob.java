@@ -42,7 +42,7 @@ public class FlintskinMob extends Animal {
         this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
-      
+
     }
 
     public static AttributeSupplier.Builder getExampleAttributes() {
