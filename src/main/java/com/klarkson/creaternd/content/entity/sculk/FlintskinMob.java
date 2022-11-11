@@ -46,7 +46,7 @@ public class FlintskinMob extends Animal {
     }
 
     public static AttributeSupplier.Builder getExampleAttributes() {
-        return Mob.createMobAttributes().add(ForgeMod.ENTITY_GRAVITY.get(), 1.5f).add(Attributes.MAX_HEALTH, 25.0D).add(Attributes.MOVEMENT_SPEED, 0.7246D);
+        return Mob.createMobAttributes().add(ForgeMod.ENTITY_GRAVITY.get(), 1.5f).add(Attributes.MAX_HEALTH, 6).add(Attributes.MOVEMENT_SPEED, 0.7246D);
     }
 
     public static boolean canSpawn(EntityType<FlintskinMob> entityType, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
