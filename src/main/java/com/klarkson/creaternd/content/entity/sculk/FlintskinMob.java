@@ -2,9 +2,9 @@ package com.klarkson.creaternd.content.entity.sculk;
 
 import com.klarkson.creaternd.content.entity.EntityHandler;
 
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
@@ -20,17 +20,15 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraftforge.common.ForgeMod;
 import org.jetbrains.annotations.Nullable;
 
-public class FlintskinMob extends Animal {
+public class FlintskinMob extends AbstractHearingEntity {
     public FlintskinMob(EntityType<? extends Animal> type, Level level) {
-        super(type, level);
-
+        super(type, level, 40);
     }
 
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob mob) {
         return EntityHandler.FLINTSKIN.get().create(level);
-
     }
 
     @Override
@@ -42,17 +40,19 @@ public class FlintskinMob extends Animal {
         this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D));
         this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
-
     }
 
     public static AttributeSupplier.Builder getExampleAttributes() {
-        return Mob.createMobAttributes().add(ForgeMod.ENTITY_GRAVITY.get(), 1.5f).add(Attributes.MAX_HEALTH, 25.0D).add(Attributes.MOVEMENT_SPEED, 0.7246D);
+        return Mob.createMobAttributes().add(ForgeMod.ENTITY_GRAVITY.get(), 1.5f).add(Attributes.MAX_HEALTH, 25.0D).add(Attributes.MOVEMENT_SPEED, 0.25D);
     }
 
     public static boolean canSpawn(EntityType<FlintskinMob> entityType, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
         return checkAnimalSpawnRules(entityType, level, spawnType, pos, random) && pos.getY() > 100;
     }
 
-
-
+    // TODO: Make a custom sound effect
+    @Override
+    public void signalReceived() {
+        this.playSound(SoundEvents.SCULK_CLICKING, 1f, 1.2f+this.getVoicePitch());
+    }
 }
