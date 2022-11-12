@@ -1,9 +1,23 @@
 {
     "block.creaternd.testblock" : "TestBlock",
 
-    "item.creaternd.handheld_saw": "Handheld Saw",
-    "item.creaternd.handheld_drill": "Handheld Drill",
     "item.creaternd.raw_lobster": "Raw Lobster",
     "item.creaternd.cooked_lobster": "Cooked Lobster",
-    "item.creaternd.lobster_roll": "Lobster Roll"
+    "item.creaternd.lobster_roll": "Lobster Roll",
+
+    "item.creaternd.handheld_drill": "Handheld Drill",
+    "item.creaternd.handheld_drill.tooltip": "HANDHELD DRILL",
+    "item.creaternd.handheld_drill.tooltip.summary": "This convenient drill can _mine more blocks_ with less effort. Can be powered with Air Pressure from a _Copper_ _Backtank_",
+    "item.creaternd.handheld_drill.tooltip.control1": "Break a Block",
+    "item.creaternd.handheld_drill.tooltip.action1": "Mines a _3x3_ _area_ around the block broken.",
+    "item.creaternd.handheld_drill.tooltip.control2": "Break a Block while Sneaking",
+    "item.creaternd.handheld_drill.tooltip.action2": "Mines a line of up to _3_ _blocks_ in the direction you are looking.",
+
+    "item.creaternd.handheld_saw": "Handheld Saw",
+    "item.creaternd.handheld_saw.tooltip": "HANDHELD SAW",
+    "item.creaternd.handheld_saw.tooltip.summary": "This portable saw can _fell a tree_ with just one swing! Can be powered with Air Pressure from a _Copper_ _Backtank_",
+    "item.creaternd.handheld_saw.tooltip.control1": "Chop a Tree Log",
+    "item.creaternd.handheld_saw.tooltip.action1": "Fells the _entire_ _tree_ instantly",
+    "item.creaternd.handheld_saw.tooltip.control2": "Chop while Sneaking",
+    "item.creaternd.handheld_saw.tooltip.action2": "Break the block as _normal_"
 }

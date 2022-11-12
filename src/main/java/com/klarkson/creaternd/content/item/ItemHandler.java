@@ -4,8 +4,10 @@ import com.klarkson.creaternd.CreateRND;
 import com.klarkson.creaternd.ModGroup;
 import com.klarkson.creaternd.content.item.tool.handheldDrill.HandheldDrillItem;
 import com.klarkson.creaternd.content.item.tool.handheldSaw.HandheldSawItem;
+import com.simibubi.create.Create;
 import com.simibubi.create.content.AllSections;
 import com.simibubi.create.foundation.data.CreateRegistrate;
+import com.simibubi.create.foundation.item.TooltipHelper;
 import com.tterrag.registrate.util.entry.ItemEntry;
 
 import net.minecraft.world.food.FoodProperties;
@@ -46,5 +48,8 @@ public class ItemHandler {
 
             .register();
 
-    public static void register() {}
+    public static void register() {
+        Create.registrate().addToSection(HANDHELD_SAW, AllSections.CURIOSITIES);
+        Create.registrate().addToSection(HANDHELD_DRILL, AllSections.CURIOSITIES);
+    }
 }
