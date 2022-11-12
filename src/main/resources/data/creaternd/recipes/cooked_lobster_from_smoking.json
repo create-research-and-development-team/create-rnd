@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:smoking",
-  "cookingtime": 100,
-  "experience": 0.35,
-  "ingredient": {
-    "item": "creaternd:raw_lobster"
-  },
-  "result": "creaternd:cooked_lobster"
-}
