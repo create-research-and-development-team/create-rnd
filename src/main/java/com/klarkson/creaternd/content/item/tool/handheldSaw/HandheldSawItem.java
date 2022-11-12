@@ -112,6 +112,9 @@ public class HandheldSawItem extends AxeItem implements IAnimatable, ISyncable {
     @Override
     public boolean mineBlock(ItemStack tool, Level level, BlockState block, BlockPos pos, LivingEntity player) {
         boolean ret = super.mineBlock(tool, level, block, pos, player);
+
+        if(player.isCrouching()) return ret;
+
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
 
         breakingLevel = level;

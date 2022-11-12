@@ -45,6 +45,7 @@ import java.util.function.Consumer;
 @NonnullDefault
 public class HandheldDrillItem extends PickaxeItem implements IAnimatable, ISyncable {
     private static final int ANGLE_LIMIT = 55;
+    private static final int CROUCH_MINE_DISTANCE = 2;
 
     private static final int ANIM_IDLE = 0;
     private static final int ANIM_DRILL = 1;
@@ -114,10 +115,31 @@ public class HandheldDrillItem extends PickaxeItem implements IAnimatable, ISync
         boolean ret = super.mineBlock(tool, level, block, pos, player);
 
         if(ret && isCorrectToolForDrops(tool, block) && !level.isClientSide){
-            mineLarge((ServerLevel) level, pos, player, tool);
+            if(player.isCrouching()) {
+                mineFar((ServerLevel) level, pos, player, tool);
+            } else {
+                mineLarge((ServerLevel) level, pos, player, tool);
+            }
         }
 
         return ret;
+    }
+
+    private void mineFar(ServerLevel level, BlockPos pos, LivingEntity player, ItemStack tool) {
+        Direction direction = player.getDirection();
+
+        float xRot = player.getXRot();
+        if(xRot <= -ANGLE_LIMIT) {
+            direction = Direction.UP;
+        } else if (xRot >= ANGLE_LIMIT) {
+            direction = Direction.DOWN;
+        }
+
+        for(int i = 0; i < CROUCH_MINE_DISTANCE; i++) {
+            pos = pos.relative(direction);
+
+            tryMine(level, pos, player, tool);
+        }
     }
 
     private void mineLarge(ServerLevel level, BlockPos pos, LivingEntity player, ItemStack tool) {
@@ -164,23 +186,27 @@ public class HandheldDrillItem extends PickaxeItem implements IAnimatable, ISync
                     testPos = testPos.relative(dir2);
                 }
 
-                BlockState blockMined = level.getBlockState(testPos);
-
-                if(blockMined.getTags().anyMatch(tag -> tag == BlockTags.NEEDS_DIAMOND_TOOL)) continue;
-
-                if(isCorrectToolForDrops(tool, blockMined)) {
-                    tool.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(EquipmentSlot.MAINHAND));
-                    level.destroyBlock(testPos, false);
-
-                    for(ItemStack item : Block.getDrops(blockMined, level, testPos, null, player, tool)) {
-                        Vec3 dropPos = VecHelper.getCenterOf(pos);
-                        ItemEntity entity = new ItemEntity(level, dropPos.x, dropPos.y, dropPos.z, item);
-                        level.addFreshEntity(entity);
-                    }
-
-                    ((Player)player).awardStat(Stats.ITEM_USED.get(tool.getItem()));
-                }
+                tryMine(level, testPos, player, tool);
             }
+        }
+    }
+
+    private void tryMine(ServerLevel level, BlockPos pos, LivingEntity player, ItemStack tool) {
+        BlockState blockMined = level.getBlockState(pos);
+
+        if(blockMined.getTags().anyMatch(tag -> tag == BlockTags.NEEDS_DIAMOND_TOOL)) return;
+
+        if(isCorrectToolForDrops(tool, blockMined)) {
+            tool.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(EquipmentSlot.MAINHAND));
+            level.destroyBlock(pos, false);
+
+            for(ItemStack item : Block.getDrops(blockMined, level, pos, null, player, tool)) {
+                Vec3 dropPos = VecHelper.getCenterOf(pos);
+                ItemEntity entity = new ItemEntity(level, dropPos.x, dropPos.y, dropPos.z, item);
+                level.addFreshEntity(entity);
+            }
+
+            ((Player)player).awardStat(Stats.ITEM_USED.get(tool.getItem()));
         }
     }
 
