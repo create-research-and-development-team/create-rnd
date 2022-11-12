@@ -1,4 +1,6 @@
 {
+    "itemGroup.creaternd": "Create R&D",
+
     "block.creaternd.testblock" : "TestBlock",
 
     "item.creaternd.raw_lobster": "Raw Lobster",
