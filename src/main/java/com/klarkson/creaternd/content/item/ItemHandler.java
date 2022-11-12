@@ -19,11 +19,11 @@ public class ItemHandler {
             .creativeModeTab(() -> ModGroup.GROUP);
 
     public static final ItemEntry<HandheldSawItem> HANDHELD_SAW = REGISTRATE.item("handheld_saw",
-                    (p) -> new HandheldSawItem(Tiers.NETHERITE, 5, 3.0f, p))
+                    (p) -> new HandheldSawItem(Tiers.DIAMOND, 5, -3.0f, p))
             .register();
 
     public static final ItemEntry<HandheldDrillItem> HANDHELD_DRILL = REGISTRATE.item("handheld_drill",
-                    (p) -> new HandheldDrillItem(Tiers.NETHERITE, 5, 3.0f, p))
+                    (p) -> new HandheldDrillItem(Tiers.DIAMOND, 1, -2.8f, p))
             .register();
 
     public static final ItemEntry<Item> RAW_LOBSTER = REGISTRATE.item("raw_lobster", Item::new)
