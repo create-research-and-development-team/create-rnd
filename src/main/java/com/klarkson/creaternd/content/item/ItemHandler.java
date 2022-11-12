@@ -4,8 +4,10 @@ import com.klarkson.creaternd.CreateRND;
 import com.klarkson.creaternd.ModGroup;
 import com.klarkson.creaternd.content.item.tool.handheldDrill.HandheldDrillItem;
 import com.klarkson.creaternd.content.item.tool.handheldSaw.HandheldSawItem;
+import com.simibubi.create.Create;
 import com.simibubi.create.content.AllSections;
 import com.simibubi.create.foundation.data.CreateRegistrate;
+import com.simibubi.create.foundation.item.TooltipHelper;
 import com.tterrag.registrate.util.entry.ItemEntry;
 
 import net.minecraft.world.food.FoodProperties;
@@ -19,32 +21,31 @@ public class ItemHandler {
             .creativeModeTab(() -> ModGroup.GROUP);
 
     public static final ItemEntry<HandheldSawItem> HANDHELD_SAW = REGISTRATE.item("handheld_saw",
-                    (p) -> new HandheldSawItem(Tiers.NETHERITE, 5, 3.0f, p))
+                    (p) -> new HandheldSawItem(Tiers.DIAMOND, 5, -3.0f, p))
             .register();
 
     public static final ItemEntry<HandheldDrillItem> HANDHELD_DRILL = REGISTRATE.item("handheld_drill",
-                    (p) -> new HandheldDrillItem(Tiers.NETHERITE, 5, 3.0f, p))
+                    (p) -> new HandheldDrillItem(Tiers.DIAMOND, 1, -2.8f, p))
             .register();
 
     public static final ItemEntry<Item> RAW_LOBSTER = REGISTRATE.item("raw_lobster", Item::new)
             .properties(p -> p.food(new FoodProperties.Builder().nutrition(4)
                     .saturationMod(0.2F)
                     .build()))
-
             .register();
-    public static final ItemEntry<Item> Cooked_LOBSTER = REGISTRATE.item("cooked_lobster", Item::new)
+    public static final ItemEntry<Item> COOKED_LOBSTER = REGISTRATE.item("cooked_lobster", Item::new)
             .properties(p -> p.food(new FoodProperties.Builder().nutrition(8)
                     .saturationMod(0.6F)
                     .build()))
-
             .register();
     public static final ItemEntry<Item> LOBSTER_ROLL = REGISTRATE.item("lobster_roll", Item::new)
             .properties(p -> p.food(new FoodProperties.Builder().nutrition(16)
                     .saturationMod(1F)
                     .build()))
-           
-
             .register();
 
-    public static void register() {}
+    public static void register() {
+        Create.registrate().addToSection(HANDHELD_SAW, AllSections.CURIOSITIES);
+        Create.registrate().addToSection(HANDHELD_DRILL, AllSections.CURIOSITIES);
+    }
 }

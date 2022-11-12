@@ -5,11 +5,9 @@ import com.simibubi.create.foundation.utility.VecHelper;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -34,15 +32,12 @@ import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
 import software.bernie.geckolib3.core.builder.ILoopType;
 import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.network.GeckoLibNetwork;
 import software.bernie.geckolib3.network.ISyncable;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -50,17 +45,16 @@ import java.util.function.Consumer;
 @NonnullDefault
 public class HandheldDrillItem extends PickaxeItem implements IAnimatable, ISyncable {
     private static final int ANGLE_LIMIT = 55;
+    private static final int CROUCH_MINE_DISTANCE = 2;
 
-    private static final String SWINGING_BOOL = "swinging";
-    private static final String WAS_SWINGING_BOOL = "wasSwinging";
     private static final int ANIM_IDLE = 0;
     private static final int ANIM_DRILL = 1;
     private static final String CONTROLLER_NAME = "handheldDrillController";
-    public static final int MAX_DAMAGE = 360;
+    public static final int MAX_DAMAGE = 2048;
     public final AnimationFactory ANIMATION_FACTORY = GeckoLibUtil.createFactory(this);
 
-    public HandheldDrillItem(Tier tier, int alwaysOne, float attackSpeedBonus, Properties properties) {
-        super(tier, alwaysOne, attackSpeedBonus, properties.defaultDurability(MAX_DAMAGE));
+    public HandheldDrillItem(Tier tier, int attackBonus, float attackSpeedBonus, Properties properties) {
+        super(tier, attackBonus, attackSpeedBonus, properties.defaultDurability(MAX_DAMAGE));
         GeckoLibNetwork.registerSyncable(this);
     }
 
@@ -121,10 +115,31 @@ public class HandheldDrillItem extends PickaxeItem implements IAnimatable, ISync
         boolean ret = super.mineBlock(tool, level, block, pos, player);
 
         if(ret && isCorrectToolForDrops(tool, block) && !level.isClientSide){
-            mineLarge((ServerLevel) level, pos, player, tool);
+            if(player.isCrouching()) {
+                mineFar((ServerLevel) level, pos, player, tool);
+            } else {
+                mineLarge((ServerLevel) level, pos, player, tool);
+            }
         }
 
         return ret;
+    }
+
+    private void mineFar(ServerLevel level, BlockPos pos, LivingEntity player, ItemStack tool) {
+        Direction direction = player.getDirection();
+
+        float xRot = player.getXRot();
+        if(xRot <= -ANGLE_LIMIT) {
+            direction = Direction.UP;
+        } else if (xRot >= ANGLE_LIMIT) {
+            direction = Direction.DOWN;
+        }
+
+        for(int i = 0; i < CROUCH_MINE_DISTANCE; i++) {
+            pos = pos.relative(direction);
+
+            tryMine(level, pos, player, tool);
+        }
     }
 
     private void mineLarge(ServerLevel level, BlockPos pos, LivingEntity player, ItemStack tool) {
@@ -171,20 +186,27 @@ public class HandheldDrillItem extends PickaxeItem implements IAnimatable, ISync
                     testPos = testPos.relative(dir2);
                 }
 
-                BlockState blockMined = level.getBlockState(testPos);
-                if(isCorrectToolForDrops(tool, blockMined)) {
-                    tool.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(EquipmentSlot.MAINHAND));
-                    level.destroyBlock(testPos, false);
-
-                    for(ItemStack item : Block.getDrops(blockMined, level, testPos, null, player, tool)) {
-                        Vec3 dropPos = VecHelper.getCenterOf(pos);
-                        ItemEntity entity = new ItemEntity(level, dropPos.x, dropPos.y, dropPos.z, item);
-                        level.addFreshEntity(entity);
-                    }
-
-                    ((Player)player).awardStat(Stats.ITEM_USED.get(tool.getItem()));
-                }
+                tryMine(level, testPos, player, tool);
             }
+        }
+    }
+
+    private void tryMine(ServerLevel level, BlockPos pos, LivingEntity player, ItemStack tool) {
+        BlockState blockMined = level.getBlockState(pos);
+
+        if(blockMined.getTags().anyMatch(tag -> tag == BlockTags.NEEDS_DIAMOND_TOOL)) return;
+
+        if(isCorrectToolForDrops(tool, blockMined)) {
+            tool.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(EquipmentSlot.MAINHAND));
+            level.destroyBlock(pos, false);
+
+            for(ItemStack item : Block.getDrops(blockMined, level, pos, null, player, tool)) {
+                Vec3 dropPos = VecHelper.getCenterOf(pos);
+                ItemEntity entity = new ItemEntity(level, dropPos.x, dropPos.y, dropPos.z, item);
+                level.addFreshEntity(entity);
+            }
+
+            ((Player)player).awardStat(Stats.ITEM_USED.get(tool.getItem()));
         }
     }
 

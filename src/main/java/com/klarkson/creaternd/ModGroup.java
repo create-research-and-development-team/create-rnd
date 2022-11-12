@@ -20,7 +20,10 @@ public class ModGroup {
             list.addAll(Arrays.asList(
                     BlockHandler.TESTBLOCK.asStack(),
                     ItemHandler.HANDHELD_SAW.asStack(),
-                    ItemHandler.HANDHELD_DRILL.asStack()
+                    ItemHandler.HANDHELD_DRILL.asStack(),
+                    ItemHandler.RAW_LOBSTER.asStack(),
+                    ItemHandler.COOKED_LOBSTER.asStack(),
+                    ItemHandler.LOBSTER_ROLL.asStack()
             ));
         }
     };
