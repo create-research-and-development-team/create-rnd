@@ -32,20 +32,16 @@ public class ItemHandler {
             .properties(p -> p.food(new FoodProperties.Builder().nutrition(4)
                     .saturationMod(0.2F)
                     .build()))
-
             .register();
-    public static final ItemEntry<Item> Cooked_LOBSTER = REGISTRATE.item("cooked_lobster", Item::new)
+    public static final ItemEntry<Item> COOKED_LOBSTER = REGISTRATE.item("cooked_lobster", Item::new)
             .properties(p -> p.food(new FoodProperties.Builder().nutrition(8)
                     .saturationMod(0.6F)
                     .build()))
-
             .register();
     public static final ItemEntry<Item> LOBSTER_ROLL = REGISTRATE.item("lobster_roll", Item::new)
             .properties(p -> p.food(new FoodProperties.Builder().nutrition(16)
                     .saturationMod(1F)
                     .build()))
-           
-
             .register();
 
     public static void register() {
