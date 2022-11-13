@@ -27,6 +27,7 @@ import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.network.ISyncable;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 public class FlintskinMob extends Animal implements IAnimatable, ISyncable {
@@ -86,7 +87,7 @@ public class FlintskinMob extends Animal implements IAnimatable, ISyncable {
     }
 
     public @NotNull Brain<?> makeBrain(Dynamic<?> dynamicBrain) {
-        this.hearingHelper = new HearingHelper(this, this::signalReceived, 40);
+        this.hearingHelper = Optional.ofNullable(this.hearingHelper).orElse(new HearingHelper(this, this::signalReceived, 40));
         return this.hearingHelper.makeBrain(dynamicBrain);
     }
 
