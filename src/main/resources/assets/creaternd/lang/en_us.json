@@ -3,6 +3,7 @@
 
     "block.creaternd.testblock" : "TestBlock",
 
+    "item.creaternd.flintskin_spawn_egg": "Flintskin Spawn Egg",
     "item.creaternd.raw_lobster": "Raw Lobster",
     "item.creaternd.cooked_lobster": "Cooked Lobster",
     "item.creaternd.lobster_roll": "Lobster Roll",

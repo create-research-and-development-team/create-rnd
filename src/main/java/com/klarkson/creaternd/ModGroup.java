@@ -21,6 +21,7 @@ public class ModGroup {
                     BlockHandler.TESTBLOCK.asStack(),
                     ItemHandler.HANDHELD_SAW.asStack(),
                     ItemHandler.HANDHELD_DRILL.asStack(),
+                    ItemHandler.FLINTSKIN_SPAWN_EGG.asStack(),
                     ItemHandler.RAW_LOBSTER.asStack(),
                     ItemHandler.COOKED_LOBSTER.asStack(),
                     ItemHandler.LOBSTER_ROLL.asStack()

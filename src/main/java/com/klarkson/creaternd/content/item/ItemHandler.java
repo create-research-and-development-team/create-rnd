@@ -2,18 +2,18 @@ package com.klarkson.creaternd.content.item;
 
 import com.klarkson.creaternd.CreateRND;
 import com.klarkson.creaternd.ModGroup;
+import com.klarkson.creaternd.content.entity.GeckoEntityHandler;
 import com.klarkson.creaternd.content.item.tool.handheldDrill.HandheldDrillItem;
 import com.klarkson.creaternd.content.item.tool.handheldSaw.HandheldSawItem;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.AllSections;
 import com.simibubi.create.foundation.data.CreateRegistrate;
-import com.simibubi.create.foundation.item.TooltipHelper;
 import com.tterrag.registrate.util.entry.ItemEntry;
 
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.Tiers;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 
 public class ItemHandler {
 
@@ -26,6 +26,10 @@ public class ItemHandler {
 
     public static final ItemEntry<HandheldDrillItem> HANDHELD_DRILL = REGISTRATE.item("handheld_drill",
                     (p) -> new HandheldDrillItem(Tiers.DIAMOND, 1, -2.8f, p))
+            .register();
+
+    public static final ItemEntry<ForgeSpawnEggItem> FLINTSKIN_SPAWN_EGG = REGISTRATE.item("flintskin_spawn_egg",
+                    (p) -> new ForgeSpawnEggItem(GeckoEntityHandler.FLINTSKIN, 0x273738, 0x10E5D4, p))
             .register();
 
     public static final ItemEntry<Item> RAW_LOBSTER = REGISTRATE.item("raw_lobster", Item::new)
