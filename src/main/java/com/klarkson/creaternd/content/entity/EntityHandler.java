@@ -16,8 +16,5 @@ import net.minecraftforge.registries.RegistryObject;
 public class EntityHandler {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, CreateRND.MODID);
 
-    public static final RegistryObject<EntityType<FlintskinMob>> FLINTSKIN = ENTITIES.register("flintskin",
-            () -> EntityType.Builder.of(FlintskinMob::new, MobCategory.CREATURE).sized(0.4f, 0.4f).build(CreateRND.MODID + ":flintskin"));
-
     public static void register() {}
 }

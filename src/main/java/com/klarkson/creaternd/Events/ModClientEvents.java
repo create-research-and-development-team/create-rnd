@@ -18,11 +18,9 @@ public class ModClientEvents {
 
     @SubscribeEvent
     public static void entityRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(EntityHandler.FLINTSKIN.get(), FlintSkinRenderer::new);
     }
 
     @SubscribeEvent
     public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(FlintSkinModel.LAYER_LOCATION, FlintSkinModel::createBodyLayer);
     }
 }

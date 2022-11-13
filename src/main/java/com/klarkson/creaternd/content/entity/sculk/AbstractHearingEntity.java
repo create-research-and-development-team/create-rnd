@@ -1,7 +1,7 @@
 package com.klarkson.creaternd.content.entity.sculk;
 
 import com.klarkson.creaternd.CreateRND;
-import com.klarkson.creaternd.content.entity.EntityHandler;
+import com.klarkson.creaternd.content.entity.GeckoEntityHandler;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -57,7 +57,7 @@ public abstract class AbstractHearingEntity extends Animal implements VibrationL
             if(this.level != entity.level) return false;
 
             if (entity instanceof LivingEntity livingEntity) {
-                return this.level == livingEntity.level && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(livingEntity) && !this.isAlliedTo(livingEntity) && livingEntity.getType() != EntityHandler.FLINTSKIN.get() && !livingEntity.isInvulnerable() && !livingEntity.isDeadOrDying() && level.getWorldBorder().isWithinBounds(livingEntity.getBoundingBox());
+                return this.level == livingEntity.level && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(livingEntity) && !this.isAlliedTo(livingEntity) && livingEntity.getType() != GeckoEntityHandler.FLINTSKIN.get() && !livingEntity.isInvulnerable() && !livingEntity.isDeadOrDying() && level.getWorldBorder().isWithinBounds(livingEntity.getBoundingBox());
             }
 
             return true;

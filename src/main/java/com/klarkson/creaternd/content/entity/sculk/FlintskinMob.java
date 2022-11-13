@@ -1,7 +1,6 @@
 package com.klarkson.creaternd.content.entity.sculk;
 
-import com.klarkson.creaternd.content.entity.EntityHandler;
-
+import com.klarkson.creaternd.content.entity.GeckoEntityHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -17,10 +16,18 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraftforge.common.ForgeMod;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.PlayState;
+import software.bernie.geckolib3.core.controller.AnimationController;
+import software.bernie.geckolib3.core.manager.AnimationData;
+import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib3.network.ISyncable;
+import software.bernie.geckolib3.util.GeckoLibUtil;
 
-public class FlintskinMob extends AbstractHearingEntity {
+public class FlintskinMob extends AbstractHearingEntity implements IAnimatable, ISyncable {
+    private AnimationFactory factory = GeckoLibUtil.createFactory(this);
+
     public FlintskinMob(EntityType<? extends Animal> type, Level level) {
         super(type, level, 40);
     }
@@ -28,7 +35,7 @@ public class FlintskinMob extends AbstractHearingEntity {
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob mob) {
-        return EntityHandler.FLINTSKIN.get().create(level);
+        return GeckoEntityHandler.FLINTSKIN.get().create(level);
     }
 
     @Override
@@ -43,7 +50,7 @@ public class FlintskinMob extends AbstractHearingEntity {
     }
 
     public static AttributeSupplier.Builder getExampleAttributes() {
-        return Mob.createMobAttributes().add(ForgeMod.ENTITY_GRAVITY.get(), 1.5f).add(Attributes.MAX_HEALTH, 25.0D).add(Attributes.MOVEMENT_SPEED, 0.25D);
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 25.0D).add(Attributes.MOVEMENT_SPEED, 0.25D);
     }
 
     public static boolean canSpawn(EntityType<FlintskinMob> entityType, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
@@ -54,5 +61,20 @@ public class FlintskinMob extends AbstractHearingEntity {
     @Override
     public void signalReceived() {
         this.playSound(SoundEvents.SCULK_CLICKING, 1f, 1.2f+this.getVoicePitch());
+    }
+
+    @Override
+    public void registerControllers(AnimationData data) {
+        data.addAnimationController(new AnimationController<>(this, "controller", 0, e -> PlayState.CONTINUE));
+    }
+
+    @Override
+    public AnimationFactory getFactory() {
+        return this.factory;
+    }
+
+    @Override
+    public void onAnimationSync(int id, int state) {
+
     }
 }
