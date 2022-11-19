@@ -45,21 +45,18 @@ public class HearingHelper implements VibrationListener.VibrationListenerConfig 
     }
 
     public boolean shouldListen(ServerLevel level, GameEventListener listener, BlockPos pos, GameEvent event, GameEvent.Context context) {
-        if(!level.getWorldBorder().isWithinBounds(pos)) return false;
+        if(!listenCheck.test(level, context) || !level.getWorldBorder().isWithinBounds(pos) || entity.getBrain().hasMemoryValue(MemoryModuleType.VIBRATION_COOLDOWN) || entity.isDeadOrDying() || entity.isRemoved() || entity.level != level || entity.isNoAi()) return false;
 
-        if(!listenCheck.test(level, context)) return false;
+        Entity eventEntity = context.sourceEntity();
 
-        if (!entity.isNoAi() && !entity.isDeadOrDying() && !entity.getBrain().hasMemoryValue(MemoryModuleType.VIBRATION_COOLDOWN) && !entity.isRemoved() && entity.level == level) {
-            Entity eventEntity = context.sourceEntity();
+        if(eventEntity != null) {
+            if(entity.level != eventEntity.level) return false;
 
-            if(eventEntity != null) {
-                if(entity.level != eventEntity.level) return false;
-
-                if (eventEntity instanceof LivingEntity livingEntity) {
-                    return entity.level == livingEntity.level && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(livingEntity) && !entity.isAlliedTo(livingEntity) && livingEntity.getType() != entity.getType() && !livingEntity.isInvulnerable() && !livingEntity.isDeadOrDying() && level.getWorldBorder().isWithinBounds(livingEntity.getBoundingBox());
-                }
+            if (eventEntity instanceof LivingEntity livingEntity) {
+                return entity.level == livingEntity.level && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(livingEntity) && !entity.isAlliedTo(livingEntity) && livingEntity.getType() != entity.getType() && !livingEntity.isInvulnerable() && !livingEntity.isDeadOrDying() && level.getWorldBorder().isWithinBounds(livingEntity.getBoundingBox());
             }
         }
+
 
         return true;
     }

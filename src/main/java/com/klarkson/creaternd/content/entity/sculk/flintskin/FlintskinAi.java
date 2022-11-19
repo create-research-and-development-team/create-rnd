@@ -3,6 +3,7 @@ package com.klarkson.creaternd.content.entity.sculk.flintskin;
 import com.google.common.collect.ImmutableList;
 import com.klarkson.creaternd.content.entity.sculk.HearingMobAi;
 import com.mojang.serialization.Dynamic;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
@@ -25,6 +26,7 @@ public class FlintskinAi extends HearingMobAi<FlintskinMob> {
 
     public Brain<FlintskinMob> makeBrain(Dynamic<?> dynamicBrain) {
         Brain brain = super.makeBrain(dynamicBrain, MEMORY_TYPES, SENSOR_TYPES);
+        initHideActivity(brain);
         initRetreatActivity(brain);
         return brain;
     }
@@ -32,6 +34,7 @@ public class FlintskinAi extends HearingMobAi<FlintskinMob> {
     @Override
     public void updateActivity() {
         mob.getBrain().setActiveActivityToFirstValid(ImmutableList.of(
+                Activity.HIDE,
                 Activity.AVOID,
                 Activity.INVESTIGATE,
                 Activity.IDLE));
@@ -48,8 +51,21 @@ public class FlintskinAi extends HearingMobAi<FlintskinMob> {
                         new MoveToTargetSink()));
     }
 
+    private void initHideActivity(Brain<FlintskinMob> brain) {
+        brain.addActivity(
+                Activity.HIDE,
+                10,
+                ImmutableList.of(
+                        new SapShaft()));
+    }
+
     private void initRetreatActivity(Brain<FlintskinMob> brain) {
-        brain.addActivityAndRemoveMemoryWhenStopped(Activity.AVOID, 10, ImmutableList.of(SetWalkTargetAwayFrom.entity(MemoryModuleType.AVOID_TARGET, 1.3F, 15, false)), MemoryModuleType.AVOID_TARGET);
+        brain.addActivityAndRemoveMemoryWhenStopped(
+                Activity.AVOID,
+                10,
+                ImmutableList.of(
+                        SetWalkTargetAwayFrom.entity(MemoryModuleType.AVOID_TARGET, 1.3F, 15, false)),
+                MemoryModuleType.AVOID_TARGET);
     }
 
     public void retreatFromNearestTarget(LivingEntity mostRecentDetection) {

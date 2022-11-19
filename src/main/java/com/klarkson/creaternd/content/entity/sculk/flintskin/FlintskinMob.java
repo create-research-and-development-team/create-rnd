@@ -3,8 +3,6 @@ package com.klarkson.creaternd.content.entity.sculk.flintskin;
 import com.klarkson.creaternd.content.entity.GeckoEntityHandler;
 import com.klarkson.creaternd.content.entity.sculk.HearingHelper;
 import com.mojang.serialization.Dynamic;
-import com.simibubi.create.AllBlocks;
-import com.simibubi.create.AllItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
