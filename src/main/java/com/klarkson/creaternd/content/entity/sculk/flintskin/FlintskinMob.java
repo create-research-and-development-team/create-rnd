@@ -13,6 +13,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
@@ -55,9 +56,16 @@ public class FlintskinMob extends Animal implements IAnimatable, ISyncable {
     }
 
     // TODO: Make a custom sound effect
-    public void signalReceived(BlockPos pos, Entity causalEntity) {
+    public void signalReceived(BlockPos pos, @Nullable Entity causalEntity) {
         this.playSound(SoundEvents.SCULK_CLICKING, 1f, 1.2f+this.getVoicePitch());
+
         flintskinAi.setDisturbanceLocation(pos);
+
+        if(causalEntity != null) {
+            if(causalEntity instanceof Player player) {
+                flintskinAi.retreatFromNearestTarget(player);
+            }
+        }
     }
 
     public void tick() {

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class HearingMobAi<T extends PathfinderMob> {
-    PathfinderMob mob;
+    public PathfinderMob mob;
 
     public final List<? extends MemoryModuleType<?>> ADDITIONAL_MEMORY_TYPES = List.of(MemoryModuleType.DISTURBANCE_LOCATION, MemoryModuleType.VIBRATION_COOLDOWN, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.LOOK_TARGET, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.PATH);
     public final List<SensorType<? extends Sensor<? super T>>> ADDITIONAL_SENSOR_TYPES = new ArrayList<>();
@@ -27,10 +27,13 @@ public abstract class HearingMobAi<T extends PathfinderMob> {
     }
 
     protected Brain<T> makeBrain(Dynamic<?> dynamicBrain, List<MemoryModuleType<?>> memoryTypes, List<SensorType<? extends Sensor<? super T>>> sensorTypes) {
-        memoryTypes.addAll(ADDITIONAL_MEMORY_TYPES);
-        sensorTypes.addAll(ADDITIONAL_SENSOR_TYPES);
+        ArrayList<MemoryModuleType<?>> memoryArrList = new ArrayList<>(memoryTypes);
+        ArrayList<SensorType<? extends Sensor<? super T>>> sensorArrList = new ArrayList<>(sensorTypes);
 
-        Brain.Provider<T> provider = Brain.provider(memoryTypes, sensorTypes);
+        memoryArrList.addAll(ADDITIONAL_MEMORY_TYPES);
+        sensorArrList.addAll(ADDITIONAL_SENSOR_TYPES);
+
+        Brain.Provider<T> provider = Brain.provider(memoryArrList, sensorArrList);
         Brain<T> brain = provider.makeBrain(dynamicBrain);
 
         initCoreActivity(brain);
