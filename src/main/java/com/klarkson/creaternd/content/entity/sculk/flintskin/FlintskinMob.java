@@ -76,10 +76,12 @@ public class FlintskinMob extends Animal implements IAnimatable, ISyncable {
     }
 
     public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
         this.hearingHelper.addAdditionalSaveData(tag);
     }
 
     public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
         this.hearingHelper.readAdditionalSaveData(tag);
     }
 

@@ -13,13 +13,14 @@ import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class HearingMobAi<T extends PathfinderMob> {
     PathfinderMob mob;
 
-    public final List<? extends MemoryModuleType<?>> ADDITIONAL_MEMORY_TYPES = List.of(MemoryModuleType.DISTURBANCE_LOCATION, MemoryModuleType.VIBRATION_COOLDOWN, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.PATH);
-    public final List<SensorType<? extends Sensor<? super T>>> ADDITIONAL_SENSOR_TYPES = List.of(SensorType.NEAREST_PLAYERS);
+    public final List<? extends MemoryModuleType<?>> ADDITIONAL_MEMORY_TYPES = List.of(MemoryModuleType.DISTURBANCE_LOCATION, MemoryModuleType.VIBRATION_COOLDOWN, MemoryModuleType.LOOK_TARGET, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.PATH);
+    public final List<SensorType<? extends Sensor<? super T>>> ADDITIONAL_SENSOR_TYPES = new ArrayList<>();
 
     public HearingMobAi(T mob) {
         this.mob = mob;
@@ -79,10 +80,10 @@ public abstract class HearingMobAi<T extends PathfinderMob> {
                         Pair.of(new DoNothing(30, 60), 1)))));
     }
 
-    public void setDisturbanceLocation(BlockPos p_219525_) {
-        if (mob.level.getWorldBorder().isWithinBounds(p_219525_)) {
-            mob.getBrain().setMemoryWithExpiry(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(p_219525_), 100L);
-            mob.getBrain().setMemoryWithExpiry(MemoryModuleType.DISTURBANCE_LOCATION, p_219525_, 100L);
+    public void setDisturbanceLocation(BlockPos pos) {
+        if (mob.level.getWorldBorder().isWithinBounds(pos)) {
+            mob.getBrain().setMemoryWithExpiry(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(pos), 100L);
+            mob.getBrain().setMemoryWithExpiry(MemoryModuleType.DISTURBANCE_LOCATION, pos, 100L);
             mob.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
         }
     }
