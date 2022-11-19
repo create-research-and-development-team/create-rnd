@@ -20,18 +20,21 @@ import org.lwjgl.system.NonnullDefault;
 
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 
 @NonnullDefault
 public class HearingHelper implements VibrationListener.VibrationListenerConfig {
     private final int VIBRATION_COOLDOWN_TICKS;
 
     private final Mob entity;
+    private final BiPredicate<ServerLevel, GameEvent.Context> listenCheck;
     private final BiConsumer<BlockPos, Entity> signalReceived;
 
     private final DynamicGameEventListener<VibrationListener> dynamicGameEventListener;
 
-    public HearingHelper(Mob entity, BiConsumer<BlockPos, Entity> signalReceived, int vibrationCooldown) {
+    public HearingHelper(Mob entity, BiPredicate<ServerLevel, GameEvent.Context> listenCheck, BiConsumer<BlockPos, Entity> signalReceived, int vibrationCooldown) {
         this.entity = entity;
+        this.listenCheck = listenCheck;
         this.signalReceived = signalReceived;
         this.dynamicGameEventListener = new DynamicGameEventListener<>(new VibrationListener(new EntityPositionSource(this.entity, this.entity.getEyeHeight()), 16, this, null, 0.0F, 0));
         this.VIBRATION_COOLDOWN_TICKS = vibrationCooldown;
@@ -42,20 +45,23 @@ public class HearingHelper implements VibrationListener.VibrationListenerConfig 
     }
 
     public boolean shouldListen(ServerLevel level, GameEventListener listener, BlockPos pos, GameEvent event, GameEvent.Context context) {
-        if (!entity.isNoAi() && !entity.isDeadOrDying() && !entity.getBrain().hasMemoryValue(MemoryModuleType.VIBRATION_COOLDOWN) && level.getWorldBorder().isWithinBounds(pos) && !entity.isRemoved() && entity.level == level) {
+        if(!level.getWorldBorder().isWithinBounds(pos)) return false;
+
+        if(!listenCheck.test(level, context)) return false;
+
+        if (!entity.isNoAi() && !entity.isDeadOrDying() && !entity.getBrain().hasMemoryValue(MemoryModuleType.VIBRATION_COOLDOWN) && !entity.isRemoved() && entity.level == level) {
             Entity eventEntity = context.sourceEntity();
 
-            if(eventEntity == null) return false;
-            if(entity.level != eventEntity.level) return false;
+            if(eventEntity != null) {
+                if(entity.level != eventEntity.level) return false;
 
-            if (eventEntity instanceof LivingEntity livingEntity) {
-                return entity.level == livingEntity.level && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(livingEntity) && !entity.isAlliedTo(livingEntity) && livingEntity.getType() != entity.getType() && !livingEntity.isInvulnerable() && !livingEntity.isDeadOrDying() && level.getWorldBorder().isWithinBounds(livingEntity.getBoundingBox());
+                if (eventEntity instanceof LivingEntity livingEntity) {
+                    return entity.level == livingEntity.level && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(livingEntity) && !entity.isAlliedTo(livingEntity) && livingEntity.getType() != entity.getType() && !livingEntity.isInvulnerable() && !livingEntity.isDeadOrDying() && level.getWorldBorder().isWithinBounds(livingEntity.getBoundingBox());
+                }
             }
-
-            return true;
         }
 
-        return false;
+        return true;
     }
 
     public void onSignalReceive(ServerLevel level, GameEventListener listener, BlockPos pos, GameEvent event, @Nullable Entity causalEntity, @Nullable Entity projectileOwner, float distance) {

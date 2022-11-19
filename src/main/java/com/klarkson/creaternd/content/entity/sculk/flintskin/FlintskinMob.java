@@ -3,6 +3,8 @@ package com.klarkson.creaternd.content.entity.sculk.flintskin;
 import com.klarkson.creaternd.content.entity.GeckoEntityHandler;
 import com.klarkson.creaternd.content.entity.sculk.HearingHelper;
 import com.mojang.serialization.Dynamic;
+import com.simibubi.create.AllBlocks;
+import com.simibubi.create.AllItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -17,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
+import net.minecraft.world.level.gameevent.GameEvent;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.NonnullDefault;
 import software.bernie.geckolib3.core.IAnimatable;
@@ -41,7 +44,7 @@ public class FlintskinMob extends Animal implements IAnimatable, ISyncable {
     public FlintskinMob(EntityType<? extends Animal> type, Level level) {
         super(type, level);
         this.getNavigation().setCanFloat(true);
-        this.hearingHelper = new HearingHelper(this, this::signalReceived, 40);
+        this.hearingHelper = new HearingHelper(this, this::listenCheck, this::signalReceived, 40);
         flintskinAi = new FlintskinAi(this);
     }
 
@@ -53,6 +56,10 @@ public class FlintskinMob extends Animal implements IAnimatable, ISyncable {
 
     public static AttributeSupplier.Builder getExampleAttributes() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 25.0D).add(Attributes.MOVEMENT_SPEED, 0.3D);
+    }
+
+    public boolean listenCheck(ServerLevel level, GameEvent.Context context) {
+        return true;
     }
 
     // TODO: Make a custom sound effect
