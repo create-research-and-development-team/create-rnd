@@ -1,6 +1,5 @@
 package com.klarkson.creaternd.content.entity.sculk.flintskin;
 
-import com.klarkson.creaternd.CreateRND;
 import com.klarkson.creaternd.content.entity.GeckoEntityHandler;
 import com.klarkson.creaternd.content.entity.sculk.HearingHelper;
 import com.mojang.serialization.Dynamic;
@@ -68,7 +67,6 @@ public class FlintskinMob extends Animal implements IAnimatable, ISyncable {
         flintskinAi.setDisturbanceLocation(pos);
 
         if(causalEntity != null) {
-            CreateRND.LOGGER.debug(causalEntity.getClass().toString());
             if(causalEntity instanceof ServerPlayer player) {
                 flintskinAi.retreatFromNearestTarget(player);
             }

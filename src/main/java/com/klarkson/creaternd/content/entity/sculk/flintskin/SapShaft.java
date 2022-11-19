@@ -1,7 +1,6 @@
 package com.klarkson.creaternd.content.entity.sculk.flintskin;
 
 import com.google.common.collect.ImmutableMap;
-import com.klarkson.creaternd.CreateRND;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.contraptions.base.RotatedPillarKineticBlock;
 import com.simibubi.create.content.contraptions.relays.elementary.ShaftBlock;
@@ -34,9 +33,8 @@ public class SapShaft extends Behavior<FlintskinMob> {
     protected boolean checkExtraStartConditions(ServerLevel level, FlintskinMob flintSkin) {
         if (!net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(level, flintSkin)) return false;
 
-        targetShaft = this.getNearestShaft(level, flintSkin.blockPosition());
+        targetShaft = getNearestShaft(level, flintSkin.blockPosition());
 
-        CreateRND.LOGGER.debug("Checking Sap");
         return targetShaft != null;
     }
 
@@ -62,7 +60,6 @@ public class SapShaft extends Behavior<FlintskinMob> {
     }
 
     protected void start(ServerLevel level, FlintskinMob flintskin, long timestamp) {
-        CreateRND.LOGGER.debug("Starting Sap");
         if (targetShaft != null) {
             flintskin.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(targetShaft));
             flintskin.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosTracker(targetShaft), 1F, 0));
@@ -70,13 +67,11 @@ public class SapShaft extends Behavior<FlintskinMob> {
     }
 
     protected void stop(ServerLevel level, FlintskinMob flintskin, long timestamp) {
-        CreateRND.LOGGER.debug("Stopping Sap");
         flintskin.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
         flintskin.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
     }
 
     protected void tick(ServerLevel level, FlintskinMob flintskin, long timestamp) {
-        CreateRND.LOGGER.debug("Ticking Sap");
         if(targetShaft != null && targetShaft.closerToCenterThan(flintskin.position(), 1.0D)) {
             if(validPos(targetShaft, level)) {
                 Direction.Axis axis = level.getBlockState(targetShaft).getValue(RotatedPillarKineticBlock.AXIS);

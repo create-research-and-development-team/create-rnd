@@ -1,9 +1,6 @@
 package com.klarkson.creaternd.content.entity.sculk.flintskin;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.ibm.icu.impl.Pair;
-import com.klarkson.creaternd.CreateRND;
 import com.klarkson.creaternd.content.entity.sculk.HearingMobAi;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.util.TimeUtil;
@@ -69,7 +66,6 @@ public class FlintskinAi extends HearingMobAi<FlintskinMob> {
     }
 
     private void setAvoidTarget(LivingEntity avoidMob) {
-        CreateRND.LOGGER.debug("Now Avoiding" + avoidMob.toString());
         mob.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
         mob.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
         mob.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, avoidMob, TimeUtil.rangeOfSeconds(3, 6).sample(mob.level.random));
