@@ -1,9 +1,11 @@
 package com.klarkson.creaternd.content.entity.sculk.flintskin;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.ibm.icu.impl.Pair;
+import com.klarkson.creaternd.CreateRND;
 import com.klarkson.creaternd.content.entity.sculk.HearingMobAi;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.core.BlockPos;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
@@ -26,7 +28,6 @@ public class FlintskinAi extends HearingMobAi<FlintskinMob> {
 
     public Brain<FlintskinMob> makeBrain(Dynamic<?> dynamicBrain) {
         Brain brain = super.makeBrain(dynamicBrain, MEMORY_TYPES, SENSOR_TYPES);
-        initHideActivity(brain);
         initRetreatActivity(brain);
         return brain;
     }
@@ -46,17 +47,10 @@ public class FlintskinAi extends HearingMobAi<FlintskinMob> {
                 Activity.CORE,
                 0,
                 ImmutableList.of(
+                        new SapShaft(),
                         new Swim(0.8F),
                         new LookAtTargetSink(45, 90),
                         new MoveToTargetSink()));
-    }
-
-    private void initHideActivity(Brain<FlintskinMob> brain) {
-        brain.addActivity(
-                Activity.HIDE,
-                10,
-                ImmutableList.of(
-                        new SapShaft()));
     }
 
     private void initRetreatActivity(Brain<FlintskinMob> brain) {
@@ -64,7 +58,7 @@ public class FlintskinAi extends HearingMobAi<FlintskinMob> {
                 Activity.AVOID,
                 10,
                 ImmutableList.of(
-                        SetWalkTargetAwayFrom.entity(MemoryModuleType.AVOID_TARGET, 1.3F, 15, false)),
+                        SetWalkTargetAwayFrom.entity(MemoryModuleType.AVOID_TARGET, 1.3F, 15, true)),
                 MemoryModuleType.AVOID_TARGET);
     }
 
@@ -75,6 +69,7 @@ public class FlintskinAi extends HearingMobAi<FlintskinMob> {
     }
 
     private void setAvoidTarget(LivingEntity avoidMob) {
+        CreateRND.LOGGER.debug("Now Avoiding" + avoidMob.toString());
         mob.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
         mob.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
         mob.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, avoidMob, TimeUtil.rangeOfSeconds(3, 6).sample(mob.level.random));

@@ -22,7 +22,7 @@ import java.util.Optional;
 
 @NonnullDefault
 public class SapShaft extends Behavior<FlintskinMob> {
-    public final static int MINIMUM_SHAFT_SPEED = 15;
+    public final static int MINIMUM_SHAFT_SPEED = 16;
 
     @Nullable
     private BlockPos targetShaft;
@@ -36,11 +36,12 @@ public class SapShaft extends Behavior<FlintskinMob> {
 
         targetShaft = this.getNearestShaft(level, flintSkin.blockPosition());
 
+        CreateRND.LOGGER.debug("Checking Sap");
         return targetShaft != null;
     }
 
     @Nullable
-    private BlockPos getNearestShaft(ServerLevel level, BlockPos blockPos) {
+    public static BlockPos getNearestShaft(ServerLevel level, BlockPos blockPos) {
         Optional<BlockPos> foundShaft = BlockPos.findClosestMatch(blockPos, 8, 4,
                 (pos) -> validPos(pos, level));
 
@@ -49,7 +50,7 @@ public class SapShaft extends Behavior<FlintskinMob> {
         return foundShaft.get();
     }
 
-    private boolean validPos(BlockPos pos, ServerLevel level) {
+    private static boolean validPos(BlockPos pos, ServerLevel level) {
         BlockState blockstate = level.getBlockState(pos);
         Block block = blockstate.getBlock();
 
@@ -57,10 +58,11 @@ public class SapShaft extends Behavior<FlintskinMob> {
 
         if(((ShaftBlock)block).getTileEntity(level, pos) == null) return false;
 
-        return ((ShaftBlock)block).getTileEntity(level, pos).getSpeed() > MINIMUM_SHAFT_SPEED;
+        return ((ShaftBlock)block).getTileEntity(level, pos).getSpeed() >= MINIMUM_SHAFT_SPEED;
     }
 
     protected void start(ServerLevel level, FlintskinMob flintskin, long timestamp) {
+        CreateRND.LOGGER.debug("Starting Sap");
         if (targetShaft != null) {
             flintskin.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(targetShaft));
             flintskin.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosTracker(targetShaft), 1F, 0));
@@ -68,11 +70,13 @@ public class SapShaft extends Behavior<FlintskinMob> {
     }
 
     protected void stop(ServerLevel level, FlintskinMob flintskin, long timestamp) {
+        CreateRND.LOGGER.debug("Stopping Sap");
         flintskin.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
         flintskin.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
     }
 
     protected void tick(ServerLevel level, FlintskinMob flintskin, long timestamp) {
+        CreateRND.LOGGER.debug("Ticking Sap");
         if(targetShaft != null && targetShaft.closerToCenterThan(flintskin.position(), 1.0D)) {
             if(validPos(targetShaft, level)) {
                 Direction.Axis axis = level.getBlockState(targetShaft).getValue(RotatedPillarKineticBlock.AXIS);
