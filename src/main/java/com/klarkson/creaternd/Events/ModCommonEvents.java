@@ -2,7 +2,7 @@ package com.klarkson.creaternd.Events;
 
 import com.klarkson.creaternd.CreateRND;
 import com.klarkson.creaternd.content.entity.GeckoEntityHandler;
-import com.klarkson.creaternd.content.entity.sculk.FlintskinMob;
+import com.klarkson.creaternd.content.entity.sculk.flintskin.FlintskinMob;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;

@@ -2,7 +2,7 @@ package com.klarkson.creaternd.render.geckolib.model;
 
 import com.klarkson.creaternd.CreateRND;
 
-import com.klarkson.creaternd.content.entity.sculk.FlintskinMob;
+import com.klarkson.creaternd.content.entity.sculk.flintskin.FlintskinMob;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 

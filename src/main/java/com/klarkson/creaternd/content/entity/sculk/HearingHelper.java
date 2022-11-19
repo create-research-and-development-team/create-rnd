@@ -10,8 +10,6 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.sensing.Sensor;
-import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.minecraft.world.level.gameevent.EntityPositionSource;
@@ -21,7 +19,6 @@ import net.minecraft.world.level.gameevent.vibrations.VibrationListener;
 import org.lwjgl.system.NonnullDefault;
 
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.function.BiConsumer;
 
 @NonnullDefault
@@ -29,13 +26,11 @@ public class HearingHelper implements VibrationListener.VibrationListenerConfig 
     private final int VIBRATION_COOLDOWN_TICKS;
 
     private final Mob entity;
-    private final BiConsumer<ServerLevel, Entity> signalReceived;
+    private final BiConsumer<BlockPos, Entity> signalReceived;
 
     private final DynamicGameEventListener<VibrationListener> dynamicGameEventListener;
-    private static final List<SensorType<? extends Sensor<? super Mob>>> SENSOR_TYPES = List.of();
-    private static final List<MemoryModuleType<?>> MEMORY_TYPES = List.of(MemoryModuleType.VIBRATION_COOLDOWN);
 
-    protected HearingHelper(Mob entity, BiConsumer<ServerLevel, Entity> signalReceived, int vibrationCooldown) {
+    public HearingHelper(Mob entity, BiConsumer<BlockPos, Entity> signalReceived, int vibrationCooldown) {
         this.entity = entity;
         this.signalReceived = signalReceived;
         this.dynamicGameEventListener = new DynamicGameEventListener<>(new VibrationListener(new EntityPositionSource(this.entity, this.entity.getEyeHeight()), 16, this, null, 0.0F, 0));
@@ -50,7 +45,7 @@ public class HearingHelper implements VibrationListener.VibrationListenerConfig 
         if (!entity.isNoAi() && !entity.isDeadOrDying() && !entity.getBrain().hasMemoryValue(MemoryModuleType.VIBRATION_COOLDOWN) && level.getWorldBorder().isWithinBounds(pos) && !entity.isRemoved() && entity.level == level) {
             Entity eventEntity = context.sourceEntity();
 
-            assert eventEntity != null;
+            if(eventEntity == null) return false;
             if(entity.level != eventEntity.level) return false;
 
             if (eventEntity instanceof LivingEntity livingEntity) {
@@ -66,8 +61,7 @@ public class HearingHelper implements VibrationListener.VibrationListenerConfig 
     public void onSignalReceive(ServerLevel level, GameEventListener listener, BlockPos pos, GameEvent event, @Nullable Entity causalEntity, @Nullable Entity projectileOwner, float distance) {
         if (!entity.isDeadOrDying()) {
             getBrain().setMemoryWithExpiry(MemoryModuleType.VIBRATION_COOLDOWN, Unit.INSTANCE, VIBRATION_COOLDOWN_TICKS);
-            level.broadcastEntityEvent(entity, (byte)61);
-            signalReceived.accept(level, causalEntity);
+            signalReceived.accept(pos, causalEntity);
         }
     }
 
@@ -80,13 +74,6 @@ public class HearingHelper implements VibrationListener.VibrationListenerConfig 
     public void customServerAiStep() {
         ServerLevel serverlevel = (ServerLevel)entity.level;
         this.getBrain().tick(serverlevel, entity);
-    }
-
-    protected Brain<?> makeBrain(Dynamic<?> dynamicBrain) {
-        Brain.Provider<Mob> provider = Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
-        Brain<Mob> brain = provider.makeBrain(dynamicBrain);
-
-        return brain;
     }
 
     public Brain<Mob> getBrain() {

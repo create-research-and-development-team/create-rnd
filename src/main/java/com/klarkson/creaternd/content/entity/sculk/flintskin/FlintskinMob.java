@@ -1,6 +1,7 @@
-package com.klarkson.creaternd.content.entity.sculk;
+package com.klarkson.creaternd.content.entity.sculk.flintskin;
 
 import com.klarkson.creaternd.content.entity.GeckoEntityHandler;
+import com.klarkson.creaternd.content.entity.sculk.HearingHelper;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -11,14 +12,12 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.NonnullDefault;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.controller.AnimationController;
@@ -30,12 +29,19 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+@NonnullDefault
 public class FlintskinMob extends Animal implements IAnimatable, ISyncable {
-    private AnimationFactory factory = GeckoLibUtil.createFactory(this);
-    private HearingHelper hearingHelper;
+    private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
+    private final HearingHelper hearingHelper;
+
+    @Nullable
+    private FlintskinAi flintskinAi;
 
     public FlintskinMob(EntityType<? extends Animal> type, Level level) {
         super(type, level);
+        this.getNavigation().setCanFloat(true);
+        this.hearingHelper = new HearingHelper(this, this::signalReceived, 40);
+        flintskinAi = new FlintskinAi(this);
     }
 
     @Nullable
@@ -44,24 +50,14 @@ public class FlintskinMob extends Animal implements IAnimatable, ISyncable {
         return GeckoEntityHandler.FLINTSKIN.get().create(level);
     }
 
-    @Override
-    protected void registerGoals() {
-        this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new PanicGoal(this, 1.25D));
-        this.goalSelector.addGoal(3, new BreedGoal(this, 1.0D));
-        this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.1D));
-        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D));
-        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F));
-        this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
-    }
-
     public static AttributeSupplier.Builder getExampleAttributes() {
-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 25.0D).add(Attributes.MOVEMENT_SPEED, 0.25D);
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 25.0D).add(Attributes.MOVEMENT_SPEED, 0.4D);
     }
 
     // TODO: Make a custom sound effect
-    public void signalReceived(ServerLevel level, Entity causalEntity) {
+    public void signalReceived(BlockPos pos, Entity causalEntity) {
         this.playSound(SoundEvents.SCULK_CLICKING, 1f, 1.2f+this.getVoicePitch());
+        flintskinAi.setDisturbanceLocation(pos);
     }
 
     public void tick() {
@@ -72,6 +68,7 @@ public class FlintskinMob extends Animal implements IAnimatable, ISyncable {
     public void customServerAiStep() {
         this.hearingHelper.customServerAiStep();
         super.customServerAiStep();
+        flintskinAi.updateActivity();
     }
 
     public static boolean canSpawn(EntityType<FlintskinMob> entityType, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
@@ -86,12 +83,16 @@ public class FlintskinMob extends Animal implements IAnimatable, ISyncable {
         this.hearingHelper.readAdditionalSaveData(tag);
     }
 
-    public @NotNull Brain<?> makeBrain(Dynamic<?> dynamicBrain) {
-        this.hearingHelper = Optional.ofNullable(this.hearingHelper).orElse(new HearingHelper(this, this::signalReceived, 40));
-        return this.hearingHelper.makeBrain(dynamicBrain);
+    public Brain<?> makeBrain(Dynamic<?> dynamicBrain) {
+        this.flintskinAi = Optional.ofNullable(this.flintskinAi).orElse(new FlintskinAi(this));
+        return flintskinAi.makeBrain(dynamicBrain);
     }
 
-    public void updateDynamicGameEventListener(@NotNull BiConsumer<DynamicGameEventListener<?>, ServerLevel> gameEventFunction) {
+    public Brain<FlintskinMob> getBrain() {
+        return (Brain<FlintskinMob>)super.getBrain();
+    }
+
+    public void updateDynamicGameEventListener(BiConsumer<DynamicGameEventListener<?>, ServerLevel> gameEventFunction) {
         this.hearingHelper.updateDynamicGameEventListener(gameEventFunction);
     }
 
@@ -108,5 +109,9 @@ public class FlintskinMob extends Animal implements IAnimatable, ISyncable {
     @Override
     public void onAnimationSync(int id, int state) {
 
+    }
+
+    public boolean dampensVibrations() {
+        return true;
     }
 }

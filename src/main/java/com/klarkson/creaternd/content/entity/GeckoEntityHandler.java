@@ -2,7 +2,7 @@ package com.klarkson.creaternd.content.entity;
 
 import com.klarkson.creaternd.CreateRND;
 import com.klarkson.creaternd.content.entity.companion.types.Klarkson;
-import com.klarkson.creaternd.content.entity.sculk.FlintskinMob;
+import com.klarkson.creaternd.content.entity.sculk.flintskin.FlintskinMob;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
