@@ -51,7 +51,7 @@ public class FlintskinMob extends Animal implements IAnimatable, ISyncable {
     }
 
     public static AttributeSupplier.Builder getExampleAttributes() {
-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 25.0D).add(Attributes.MOVEMENT_SPEED, 0.4D);
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 25.0D).add(Attributes.MOVEMENT_SPEED, 0.3D);
     }
 
     // TODO: Make a custom sound effect

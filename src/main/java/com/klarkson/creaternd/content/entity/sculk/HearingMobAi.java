@@ -19,7 +19,7 @@ import java.util.List;
 public abstract class HearingMobAi<T extends PathfinderMob> {
     PathfinderMob mob;
 
-    public final List<? extends MemoryModuleType<?>> ADDITIONAL_MEMORY_TYPES = List.of(MemoryModuleType.DISTURBANCE_LOCATION, MemoryModuleType.VIBRATION_COOLDOWN, MemoryModuleType.LOOK_TARGET, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.PATH);
+    public final List<? extends MemoryModuleType<?>> ADDITIONAL_MEMORY_TYPES = List.of(MemoryModuleType.DISTURBANCE_LOCATION, MemoryModuleType.VIBRATION_COOLDOWN, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.LOOK_TARGET, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.PATH);
     public final List<SensorType<? extends Sensor<? super T>>> ADDITIONAL_SENSOR_TYPES = new ArrayList<>();
 
     public HearingMobAi(T mob) {
