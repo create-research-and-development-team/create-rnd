@@ -1,6 +1,7 @@
 package com.klarkson.creaternd;
 
 import com.klarkson.creaternd.content.block.BlockHandler;
+import com.klarkson.creaternd.content.config.ConfigHandler;
 import com.klarkson.creaternd.content.entity.EntityHandler;
 import com.klarkson.creaternd.content.entity.GeckoEntityHandler;
 import com.klarkson.creaternd.content.item.ItemHandler;
@@ -37,6 +38,7 @@ public class CreateRND
 
         ItemHandler.register();
         BlockHandler.register();
+        ConfigHandler.register(mlContext);
 
         GeckoLibMod.DISABLE_IN_DEV = true;
         GeckoLib.initialize();

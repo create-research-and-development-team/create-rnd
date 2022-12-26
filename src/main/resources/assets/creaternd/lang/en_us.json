@@ -22,5 +22,9 @@
     "item.creaternd.handheld_saw.tooltip.control1": "Chop a Tree Log",
     "item.creaternd.handheld_saw.tooltip.action1": "Fells the _entire_ _tree_ instantly",
     "item.creaternd.handheld_saw.tooltip.control2": "Chop while Sneaking",
-    "item.creaternd.handheld_saw.tooltip.action2": "Break the block as _normal_"
+    "item.creaternd.handheld_saw.tooltip.action2": "Break the block as _normal_",
+
+    "loggingScreen.creaternd.header": "Create R&D Logging Notice",
+    "loggingScreen.creaternd.message": "We collect the following info on an opt-in basis:\n - This\n - That\n - Whatever else we're gonna collect\n\nAll logged data will be stored for one week",
+    "loggingScreen.creaternd.check": "I opt-in to the above data being logged by Create R&D"
 }
