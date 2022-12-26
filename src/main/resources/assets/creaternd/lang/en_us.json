@@ -25,6 +25,6 @@
     "item.creaternd.handheld_saw.tooltip.action2": "Break the block as _normal_",
 
     "loggingScreen.creaternd.header": "Create R&D Logging Notice",
-    "loggingScreen.creaternd.message": "We collect the following info on an opt-in basis:\n - This\n - That\n - Whatever else we're gonna collect\n\nAll logged data will be stored for one week",
-    "loggingScreen.creaternd.check": "I opt-in to the above data being logged by Create R&D"
+    "loggingScreen.creaternd.message": "We collect the following info on an opt-in basis:\n - In-game username (IGN)\n - Minecraft logs, to help us diagnose issues you may encounter with the mod\n - Limited information about your session\n\nAll logged data will be stored for one week",
+    "loggingScreen.creaternd.check": "I opt-in to the above data being logged by Create R&D and shared with it's developers"
 }

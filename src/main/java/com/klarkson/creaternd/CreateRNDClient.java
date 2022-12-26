@@ -6,6 +6,8 @@ import com.klarkson.creaternd.render.geckolib.renderer.KlarksonRenderer;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 
+import static com.klarkson.creaternd.api.logging.logCollection;
+
 public class CreateRNDClient {
     public static void prepareClient(IEventBus modEventBus, IEventBus forgeEventBus) {
         modEventBus.addListener(CreateRNDClient::registerRenderers);

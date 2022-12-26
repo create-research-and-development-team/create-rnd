@@ -13,6 +13,8 @@ import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import static com.klarkson.creaternd.api.logging.logCollection;
+
 @Mod.EventBusSubscriber(modid = CreateRND.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CreateLoggingScreen extends WarningScreen {
     private static final Component TITLE = Component.translatable("loggingScreen.creaternd.header").withStyle(ChatFormatting.BOLD);
@@ -33,6 +35,7 @@ public class CreateLoggingScreen extends WarningScreen {
 
         screenOpenEvent.setNewScreen(new CreateLoggingScreen(screenOpenEvent.getNewScreen()));
         ConfigHandler.LOGGING.loggingWarningSeen.set(true);
+
     }
 
     @Override
