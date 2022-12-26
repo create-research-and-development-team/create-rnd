@@ -35,7 +35,6 @@ public class CreateLoggingScreen extends WarningScreen {
 
         screenOpenEvent.setNewScreen(new CreateLoggingScreen(screenOpenEvent.getNewScreen()));
         ConfigHandler.LOGGING.loggingWarningSeen.set(true);
-
     }
 
     @Override
