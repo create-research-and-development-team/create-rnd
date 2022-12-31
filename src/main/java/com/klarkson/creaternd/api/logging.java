@@ -57,7 +57,6 @@ public class logging {
                     yc.getInputStream()));
             in.close();
         } catch (NullPointerException ex) {
-            IGN = "Annon";
            return logCollectionAnnon(Reason);
         }
       } else {
@@ -69,7 +68,6 @@ public class logging {
     //This is a fallback for the logging service if a log event occurs when the username is not available.
     private static boolean logCollectionAnnon (String Reason) {
         if (ConfigHandler.LOGGING.logging.get()) {
-            String IGN;
             String BinSend;
             StringBuilder sb = new StringBuilder();
             char[] chars = Reason.toCharArray();
