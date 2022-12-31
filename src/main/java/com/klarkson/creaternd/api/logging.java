@@ -48,7 +48,7 @@ public class logging {
         try {
            IGN = Minecraft.getInstance().player.getDisplayName().getString();
             //TODO Make it check and grab user (client), server could cause issues with this
-            String apiConstructer = "https://api.obsidiancorestudios.com/crad/bugreport/?useragent=crad&log="+BinSend+":logtext"+"&ign="+Minecraft.getInstance().player.getDisplayName().getString();
+            String apiConstructer = "https://api.obsidiancorestudios.com/crad/bugreport/?useragent=crnd&log="+BinSend+":logtext"+"&ign="+Minecraft.getInstance().player.getDisplayName().getString();
             System.out.println(apiConstructer);
             URL api = new URL(apiConstructer);
             //hey people who know the api, any way I could grab the logs path and put it up there? Thx - JQ
@@ -69,6 +69,7 @@ public class logging {
     //This is a fallback for the logging service if a log event occurs when the username is not available.
     private static boolean logCollectionAnnon (String Reason) {
         if (ConfigHandler.LOGGING.logging.get()) {
+            System.out.println("Fallback CR&D Logger has been triggered due to IGN fetch fail on regular CR&D logging service.");
             String IGN;
             String BinSend;
             StringBuilder sb = new StringBuilder();
@@ -80,10 +81,9 @@ public class logging {
                 sb.append(output);
             }
             BinSend =  sb.toString();
-            System.out.println("Fallback CR&D Logger has been triggered due to IGN fetch fail on regular CR&D logging service.");
             try {
                 //TODO Make it check and grab user (client), server could cause issues with this
-                String apiConstructer = "https://api.obsidiancorestudios.com/crad/bugreport/?useragent=crad&log="+ BinSend +":logtext"+"&ign=ANNON";
+                String apiConstructer = "https://api.obsidiancorestudios.com/crad/bugreport/?useragent=crnd&log="+ BinSend +":logtext"+"&ign=ANNON";
                 System.out.println(apiConstructer);
                 URL api = new URL(apiConstructer);
                 //hey people who know the api, any way I could grab the logs path and put it up there? Thx - JQ
