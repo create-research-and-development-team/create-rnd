@@ -1,40 +1,21 @@
 package com.klarkson.creaternd.api;
 
-import com.klarkson.creaternd.CreateRND;
 import com.klarkson.creaternd.content.config.ConfigHandler;
-import com.klarkson.creaternd.content.screens.CreateLoggingScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.LevelLoadingScreen;
-import net.minecraft.client.gui.screens.TitleScreen;
-import net.minecraft.client.renderer.debug.WorldGenAttemptRenderer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.event.entity.player.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import software.bernie.geckolib3.util.json.JsonUtil;
-
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Timer;
 
 //TODO Figure out a stable way to fetch logs dynamically (file paths and use file reader w/ said file path) and convert to bin, and upload to server where the backend will handle converting it back into text and format the logs.
 @Mod.EventBusSubscriber
 public class logging {
-    private static int PREVENTREPEAT = 1;
     public static boolean logCollection (String Reason) throws IOException {
       if (ConfigHandler.LOGGING.logging.get()) {
-          String IGN;
           String BinSend;
           StringBuilder sb = new StringBuilder();
           char[] chars = Reason.toCharArray();
@@ -46,11 +27,11 @@ public class logging {
           }
           BinSend =  sb.toString();
         try {
-           IGN = Minecraft.getInstance().player.getDisplayName().getString();
             //TODO Make it check and grab user (client), server could cause issues with this
-            String apiConstructer = "https://api.obsidiancorestudios.com/crad/bugreport/?useragent=crnd&log="+BinSend+":logtext"+"&ign="+Minecraft.getInstance().player.getDisplayName().getString();
-            System.out.println(apiConstructer);
-            URL api = new URL(apiConstructer);
+            assert Minecraft.getInstance().player != null;
+            String apiConstructor = "https://api.obsidiancorestudios.com/crad/bugreport/?useragent=crnd&log="+BinSend+":logtext"+"&ign="+Minecraft.getInstance().player.getDisplayName().getString();
+            System.out.println(apiConstructor);
+            URL api = new URL(apiConstructor);
             //hey people who know the api, any way I could grab the logs path and put it up there? Thx - JQ
             URLConnection yc = api.openConnection();
             BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -80,9 +61,9 @@ public class logging {
             BinSend =  sb.toString();
             try {
                 //TODO Make it check and grab user (client), server could cause issues with this
-                String apiConstructer = "https://api.obsidiancorestudios.com/crad/bugreport/?useragent=crnd&log="+ BinSend +":logtext"+"&ign=ANNON";
-                System.out.println(apiConstructer);
-                URL api = new URL(apiConstructer);
+                String apiConstructor = "https://api.obsidiancorestudios.com/crad/bugreport/?useragent=crnd&log="+ BinSend +":logtext"+"&ign=ANNON";
+                System.out.println(apiConstructor);
+                URL api = new URL(apiConstructor);
                 //hey people who know the api, any way I could grab the logs path and put it up there? Thx - JQ
                 URLConnection yc = api.openConnection();
                 BufferedReader in = new BufferedReader(new InputStreamReader(
