@@ -28,7 +28,10 @@ public class logging {
           BinSend =  sb.toString();
         try {
             //TODO Make it check and grab user (client), server could cause issues with this
-            assert Minecraft.getInstance().player != null;
+            if (Minecraft.getInstance().player == null) {
+                System.out.println("Failed to send log information as the player is null and Minecraft probably not fully loaded");
+                return false;
+            }
             String apiConstructor = "https://api.obsidiancorestudios.com/crad/bugreport/?useragent=crnd&log="+BinSend+":logtext"+"&ign="+Minecraft.getInstance().player.getDisplayName().getString();
             System.out.println(apiConstructor);
             URL api = new URL(apiConstructor);
