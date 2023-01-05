@@ -1,0 +1,46 @@
+{
+  "required": true,
+  "package": "net.createrndteam.creaternd.fabric.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "net.createrndteam.creaternd.fabric.mixin.create.MixinBlockBreakingKineticTileEntity",
+    "net.createrndteam.creaternd.fabric.mixin.create.MixinBlocks",
+    "net.createrndteam.creaternd.fabric.mixin.create.MixinCarriageContraptionEntity",
+    "net.createrndteam.creaternd.fabric.mixin.create.MixinControlsInputPacket",
+    "net.createrndteam.creaternd.fabric.mixin.create.MixinCrushingWheelBlock",
+    "net.createrndteam.creaternd.fabric.mixin.create.MixinCurvedTrackDestroyPacket",
+    "net.createrndteam.creaternd.fabric.mixin.create.MixinFriendlyByteBuf",
+    "net.createrndteam.creaternd.fabric.mixin.create.MixinTileEntityConfigurationPacket",
+    "net.createrndteam.creaternd.fabric.mixin.create.MixinTrackNodeLocation",
+    "net.createrndteam.creaternd.fabric.mixin.create.MixinContraptionCollider",
+    "net.createrndteam.creaternd.fabric.mixin.create.MixinSuperGlueRemovalPacket",
+    "net.createrndteam.creaternd.fabric.mixin.create.MixinTrainRelocationPacket"
+  ],
+  "client": [
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinTrainRelocator",
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinOrientedContraptionEntity",
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinCarriageContraptionInstance",
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinContraptionHandlerClient",
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinContraptionRenderDispatcher",
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinContraptionRenderInfo",
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinCullingBlockEntityIterator",
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinFlwContraption",
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinGhostBlockRenderer",
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinOutline",
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinScrollValueBehaviour",
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinSuperGlueSelectionHandler",
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinTileEntityRenderHelper",
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinTrackBlockOutline",
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinTrackTargetingBehaviour",
+    "net.createrndteam.creaternd.fabric.mixin.create.client.MixinValueBox",
+    "net.createrndteam.creaternd.fabric.mixin.flywheel.client.InstancingEngineAccessor",
+    "net.createrndteam.creaternd.fabric.mixin.flywheel.client.MixinInstanceManager",
+    "net.createrndteam.creaternd.fabric.mixin.flywheel.client.MixinInstanceWorld",
+    "net.createrndteam.creaternd.fabric.mixin.flywheel.client.MixinInstancingEngine",
+    "net.createrndteam.creaternd.fabric.mixin.flywheel.client.MixinTileInstanceManager"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

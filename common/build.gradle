@@ -1,0 +1,48 @@
+architectury {
+    common(rootProject.enabled_platforms.split(","))
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/create_rnd.accesswidener")
+}
+
+dependencies {
+    // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
+    // Do NOT use other classes from fabric loader
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    // Remove the next line if you don't want to depend on the API
+//    modApi "me.shedaniel:architectury:${rootProject.architectury_version}"
+    modApi("org.valkyrienskies:valkyrienskies-118-common:${rootProject.vs2_version}")
+    modApi("org.valkyrienskies.eureka:eureka-common:${rootProject.eureka_version}")
+    implementation("org.valkyrienskies.core:api:1.1.0+c92814e9b7") { transitive = false }
+
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.21"
+    api "org.jetbrains.kotlin:kotlin-reflect:1.7.21"
+}
+
+publishing {
+    publications {
+        mavenCommon(MavenPublication) {
+            groupId = "org.createrndteam.creaternd"
+            version = project.version
+            artifactId = rootProject.archives_base_name + "-" + project.name
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+        if (System.getenv("GITHUB_ACTOR") != null) {
+            println "Publishing to Github Packages"
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/Create")
+                credentials {
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+    }
+}

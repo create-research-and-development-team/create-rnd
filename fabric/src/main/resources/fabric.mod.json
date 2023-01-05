@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "id": "create_rnd",
+  "version": "${version}",
+  "name": "Create: Research and Development",
+  "description": "Mechs and robos.",
+  "authors": [
+    "Potato",
+    "PriestofFern",
+    "Toni"
+  ],
+  "contributors": [
+    "SomeDom",
+    "Milk",
+    "The rest of the Create RND Team"
+  ],
+  "contact": {
+    "homepage": "https://valkyrienskies.org/",
+    "sources": "https://github.com/create-resaea"
+  },
+  "license": "Apache-2.0",
+  "icon": "assets/create_rnd/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.createrndteam.creaternd.fabric.CreateRNDFabric"
+    ],
+    "client": [
+      "net.createrndteam.creaternd.fabric.CreateRNDFabric"
+    ],
+    "preLaunch": [
+      "net.createrndteam.creaternd.fabric.ValkyrienPreLaunch"
+    ],
+    "modmenu": [
+      "net.createrndteam.creaternd.fabric.CreateRNDFabric"
+    ]
+  },
+  "mixins": [
+    "create_rnd-common.mixins.json",
+    "create_rnd.mixins.json"
+  ],
+  "depends": {
+    "minecraft": ">=1.18.2",
+    "valkyrienskies": ">=${vs2_version}"
+  }
+}

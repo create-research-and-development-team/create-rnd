@@ -1,0 +1,35 @@
+modLoader = "javafml"
+loaderVersion = "[40,)"
+issueTrackerURL = "https://github.com/ValkyrienSkies/Valkyrien-Skies-2/issues"
+license = "Apache-2.0"
+
+[[mods]]
+modId = "create_rnd"
+version = "${version}"
+displayName = "Create Research & Development"
+authors = ["Create R&D Team"]
+description = '''
+
+'''
+logoFile = "icon.png"
+
+[[dependencies.create_rnd]]
+modId = "forge"
+mandatory = true
+versionRange = "[40.1.69,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.create_rnd]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.18.2,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.create_rnd]]
+modId = "valkyrienskies"
+mandatory = true
+versionRange = "[2,)"
+ordering = "AFTER"
+side = "BOTH"

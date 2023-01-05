@@ -1,197 +1,130 @@
-buildscript {
-    repositories {
-        // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
-        maven { url = 'https://maven.minecraftforge.net' }
-        mavenCentral()
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public' }
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: "${forgegradle_version}", changing: true
-        classpath "org.spongepowered:mixingradle:${mixingradle_version}"
-    }
-}
-
-
 plugins {
-    id 'eclipse'
-    id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.1.+'
+    // Needed for Forge+Fabric
+    id "architectury-plugin" version "3.4-SNAPSHOT"
+    id "dev.architectury.loom" version "0.12.0-SNAPSHOT" apply false
+    // Kotlin
+    id "org.jetbrains.kotlin.jvm" version "1.7.21" apply false
+    // Kotlin linter
+    id "org.jlleitschuh.gradle.ktlint" version "10.3.0"
+    // Java linter
+    id "checkstyle"
+
+    id 'com.matthewprenger.cursegradle' version '1.4.0' apply false
+    id "com.modrinth.minotaur" version "2.4.5" apply false
 }
 
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.spongepowered.mixin'
+// Determine the version
+if (project.hasProperty("CustomReleaseVersion")) {
+    // Remove release/ from the version if present
+    version = project.property("CustomReleaseVersion").replaceFirst("^release/", "")
+} else {
+    String gitRevision = "git rev-parse HEAD".execute().text.trim()
 
-version = '1.0'
-group = 'com.klarkson.creaternd' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'creaternd'
-
-// Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
-minecraft {
-
-    mappings channel: 'official', version: '1.19.2'
-
-    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
-
-    // Default run configurations.
-    // These can be tweaked, removed, or duplicated as needed.
-    runs {
-        client {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            property 'forge.logging.console.level', 'debug'
-
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            property 'forge.enabledGameTestNamespaces', 'creaternd'
-
-            mods {
-                creaternd {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            property 'forge.logging.console.level', 'debug'
-
-            property 'forge.enabledGameTestNamespaces', 'creaternd'
-
-            mods {
-                creaternd {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        // This run config launches GameTestServer and runs all registered gametests, then exits.
-        // By default, the server will crash when no gametests are provided.
-        // The gametest system is also enabled by default for other run configs under the /test command.
-        gameTestServer {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            property 'forge.logging.console.level', 'debug'
-
-            property 'forge.enabledGameTestNamespaces', 'creaternd'
-
-            mods {
-                creaternd {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            property 'forge.logging.console.level', 'debug'
-
-            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            args '--mod', 'creaternd', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-
-            mods {
-                creaternd {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
+    version = creaternd_version + '+' + gitRevision.substring(0, 10)
 }
 
-// Include resources generated by data generators.
-sourceSets.main.resources { srcDir 'src/generated/resources' }
-
-repositories {
-    maven {
-        // JEI
-        name 'Progwm16 maven'
-        url 'https://dvs1.progwml6.com/files/maven'
-    }
-    maven {
-        // Mixed mappings, Registrate, Flywheel
-        name 'tterrag maven'
-        url 'https://maven.tterrag.com'
-    }
-    maven {
-        // Geckolib
-        url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
-    }
-    maven {
-        url 'https://www.cursemaven.com'
-        content {
-            includeGroup "curse.maven"
-        }
-    }
+architectury {
+    minecraft = rootProject.minecraft_version
 }
 
-dependencies {
+subprojects {
+    apply plugin: "dev.architectury.loom"
+    // Apply checkstyle and ktlint to check the code style of every sub project
+    apply plugin: "org.jlleitschuh.gradle.ktlint"
+    apply plugin: "checkstyle"
+    apply plugin: "org.jetbrains.kotlin.jvm"
 
-    minecraft 'net.minecraftforge:forge:1.19.2-43.1.47'
-
-    // Create + Registrate
-    implementation fg.deobf("com.simibubi.create:create-${create_minecraft_version}:${create_version}:slim") { transitive = false }
-    implementation fg.deobf("com.jozufozu.flywheel:flywheel-forge-${flywheel_minecraft_version}:${flywheel_version}")
-    implementation fg.deobf("com.tterrag.registrate:Registrate:${registrate_version}")
-
-    // Geckolib
-    implementation fg.deobf("software.bernie.geckolib:geckolib-forge-${mc_short}:${geckolib_version}")
-
-
-}
-
-// Example for how to get properties into the manifest for reading at runtime.
-jar {
-    manifest {
-        attributes([
-                "Specification-Title"     : "creaternd",
-                "Specification-Vendor"    : "klarkson",
-                "Specification-Version"   : "1", // We are version 1 of ourselves
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : project.jar.archiveVersion,
-                "Implementation-Vendor"   : "klarkson",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
+    loom {
+        silentMojangMappingsLicense()
     }
-}
 
-// Example configuration to allow publishing using the maven-publish plugin
-// This is the preferred method to reobfuscate your jar file
-jar.finalizedBy('reobfJar')
-// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
-// publish.dependsOn('reobfJar')
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
     repositories {
-        maven {
-            url "file://${project.projectDir}/mcmodsrepo"
+        if (!project.block_external_repositories) {
+            maven {
+                name = "ParchmentMC"
+                url = "https://maven.parchmentmc.org"
+            }
+        }
+    }
+
+    if (project.block_external_repositories) {
+        repositories.removeIf {
+            def url = it.url.toString()
+            url.contains("maven.minecraftforge.net") ||
+                url.contains("maven.fabricmc.net") ||
+                url.contains("maven.architectury.dev")
+        }
+    }
+
+    dependencies {
+        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+        // The following line declares the mojmap mappings, you may use other mappings as well
+        mappings(loom.layered {
+            officialMojangMappings()
+            parchment("org.parchmentmc.data:parchment-1.18.2:2022.09.04@zip")
+        })
+    }
+
+    checkstyle {
+        // configure to use checkstyle v8.45.1
+        toolVersion "8.45.1"
+        // Gradle shouldn't fail builds on checkstyle errors
+        ignoreFailures = true
+        // Checkstyle config file is in .checkstyle/checkstyle.xml
+        configFile = file("${rootDir}/.checkstyle/checkstyle.xml")
+    }
+
+    // configure checkstyle, but different
+    // https://docs.gradle.org/current/userguide/checkstyle_plugin.html
+    tasks.withType(Checkstyle) {
+        reports {
+            // Do not output html reports
+            html.enabled = false
+            // Output xml reports
+            xml.enabled = true
+        }
+    }
+
+    // configure ktlint
+    ktlint {
+        ignoreFailures = true
+        reporters {
+            // configure to output in checkstyle XML format
+            reporter "checkstyle"
         }
     }
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+allprojects {
+    apply plugin: "java"
+    apply plugin: "architectury-plugin"
+    apply plugin: "maven-publish"
+
+    archivesBaseName = rootProject.archives_base_name
+    version = rootProject.version
+    group = rootProject.maven_group
+
+    repositories {
+        mavenLocal()
+        maven {
+            name = "Valkyrien Skies Internal"
+            url = project.vs_maven_url ?: 'https://maven.valkyrienskies.org'
+            if (project.vs_maven_username && project.vs_maven_password) {
+                credentials {
+                    username = project.vs_maven_username
+                    password = project.vs_maven_password
+                }
+            }
+        }
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+
+        options.release = 17
+    }
+
+    java {
+        withSourcesJar()
+    }
 }
